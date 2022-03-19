@@ -32,13 +32,13 @@ struct entry {
 
   entry* next;
   entry* prev;
-  
-  size_t forward_size; 
-  size_t forward_max; 
+
+  size_t forward_size;
+  size_t forward_max;
   entry** forward;  // this entry depends on these
-    
-  size_t backward_size; 
-  size_t backward_max; 
+
+  size_t backward_size;
+  size_t backward_max;
   entry** backward; // these entries depend on this
 };
 
