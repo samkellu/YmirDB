@@ -172,7 +172,7 @@ int main(void) {
 			return 0;
 		}
 
-		char* input = line;
+		input = line;
 		char **arg_array = (char**)malloc(sizeof(char**));
 		int array_length = 0;
 		while ((token = strsep(&input, " ")) != NULL) {
@@ -183,13 +183,12 @@ int main(void) {
 			array_length++;
 		}
 
-		int arg_number = 0;
-		char *arg = arg_array[arg_number];
+		char *arg = arg_array[0];
 		if (strcmp("HELP", arg) == 0) {
 			command_help();
 		} else if (strcmp("LIST", arg) == 0) {
 			printf("registered list");
-				char *arg = arg_array[++arg_number];//+++
+				char *arg = arg_array[1];//+++
 				if (strcmp("KEYS", arg) == 0) {
 					command_list_keys();
 				} else if (strcmp("ENTRIES", arg) == 0) {
@@ -200,11 +199,11 @@ int main(void) {
 					continue;
 				}
 		} else if (strcmp("GET", arg) == 0) {
-			command_get(arg_array[++arg_number]);
+			command_get(arg_array[1]);
 		} else if (strcmp("DEL", arg) == 0) {
-			command_del(arg_array[++arg_number]);
+			command_del(arg_array[1]);
 		} else if (strcmp("PURGE", arg) == 0) {
-			command_purge(arg_array[++arg_number]);
+			command_purge(arg_array[1]);
 		} else if (strcmp("SET", arg) == 0) {
 			command_set(arg_array, array_length);
 		} else if (strcmp("PUSH", arg) == 0) {
@@ -212,39 +211,39 @@ int main(void) {
 		} else if (strcmp("APPEND", arg) == 0) {
 			command_append(arg_array);
 		} else if (strcmp("PICK", arg) == 0) {
-			command_pick(arg_array[++arg_number],arg_array[++arg_number]);
+			command_pick(arg_array[1],arg_array[2]);
 		} else if (strcmp("PLUCK", arg) == 0) {
-			command_pluck(arg_array[++arg_number],arg_array[++arg_number]);
+			command_pluck(arg_array[1],arg_array[2]);
 		} else if (strcmp("POP", arg) == 0) {
-			command_pop(arg_array[++arg_number]);
+			command_pop(arg_array[1]);
 		} else if (strcmp("DROP", arg) == 0) {
-			command_drop(arg_array[++arg_number]);
+			command_drop(arg_array[1]);
 		} else if (strcmp("ROLLBACK", arg) == 0) {
-			command_rollback(arg_array[++arg_number]);
+			command_rollback(arg_array[1]);
 		} else if (strcmp("CHECKOUT", arg) == 0) {
-			command_checkout(arg_array[++arg_number]);
+			command_checkout(arg_array[1]);
 		} else if (strcmp("SNAPSHOT", arg) == 0) {
 			command_snapshot();
 		} else if (strcmp("MIN", arg) == 0) {
-			command_min(arg_array[++arg_number]);
+			command_min(arg_array[1]);
 		} else if (strcmp("MAX", arg) == 0) {
-			command_max(arg_array[++arg_number]);
+			command_max(arg_array[1]);
 		} else if (strcmp("SUM", arg) == 0) {
-			command_sum(arg_array[++arg_number]);
+			command_sum(arg_array[1]);
 		} else if (strcmp("LEN", arg) == 0) {
-			command_len(arg_array[++arg_number]);
+			command_len(arg_array[1]);
 		} else if (strcmp("REV", arg) == 0) {
-			command_rev(arg_array[++arg_number]);
+			command_rev(arg_array[1]);
 		} else if (strcmp("UNIQ", arg) == 0) {
-			command_uniq(arg_array[++arg_number]);
+			command_uniq(arg_array[1]);
 		} else if (strcmp("SORT", arg) == 0) {
-			command_sort(arg_array[++arg_number]);
+			command_sort(arg_array[1]);
 		} else if (strcmp("FORWARD", arg) == 0) {
-			command_forward(arg_array[++arg_number]);
+			command_forward(arg_array[1]);
 		} else if (strcmp("BACKWARD", arg) == 0) {
-			command_backward(arg_array[++arg_number]);
+			command_backward(arg_array[1]);
 		} else if (strcmp("TYPE", arg) == 0) {
-			command_type(arg_array[++arg_number]);
+			command_type(arg_array[1]);
 		}
 		printf("freed");
 		fflush(stdout);
