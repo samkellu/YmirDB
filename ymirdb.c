@@ -184,7 +184,10 @@ int main(void) {
 		}
 
 		char *arg = arg_array[0];
-		if (strcmp("HELP", arg) == 0) {
+		if (strcmp("BYE", arg) == 0) {
+			command_bye();
+			// return 0;
+		} else if (strcmp("HELP", arg) == 0) {
 			command_help();
 		} else if (strcmp("LIST", arg) == 0) {
 			printf("registered list");
@@ -245,8 +248,6 @@ int main(void) {
 		} else if (strcmp("TYPE", arg) == 0) {
 			command_type(arg_array[1]);
 		}
-		printf("freed");
-		fflush(stdout);
 		free(arg_array);
 	}
 	return 0;
