@@ -159,7 +159,7 @@ int main(void) {
 					command_help();
 				} else if (strcmp("LIST", token)) {
 					if ((token = strsep(&input, " ")) != NULL) {
-						if (strcmp("KEYS", token) {
+						if (strcmp("KEYS", token)) {
 							
 						} else if (strcmp("ENTRIES", token)) {
 
