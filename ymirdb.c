@@ -34,16 +34,16 @@ void command_help() {
 	printf("%s\n", HELP);
 }
 
-void command_list_keys() {
-	//
+void command_list_keys(entry *entries, int num_entries) {
+	for (int entry = 0; entry < num_entries; entry++) {
+		printf("%s\n", entries[entry].key);
+	}
 }
 
 void command_list_entries(entry *entries, int num_entries) {
 	for (int current_entry = 0; current_entry < num_entries; current_entry++) {
 		int element_limit = entries[current_entry].length;
-		printf("\n%s [", entries[current_entry].key);
-		fflush(stdout);
-		printf("%d", entries[0].values[0].value);
+		printf("%s [ ", entries[current_entry].key);
 		fflush(stdout);
 		for (int element = 0; element < element_limit; element++) {
 			int type = entries[current_entry].values[element].type;
@@ -53,9 +53,11 @@ void command_list_entries(entry *entries, int num_entries) {
 				fflush(stdout);
 			} else {
 				printf("%s, ", entries[current_entry].values[element].entry->key);
-				command_list_entries(entries[current_entry].values[element].entry, 10); //+++ placeholder!!!
+				fflush(stdout);
+			//	command_list_entries(entries[current_entry].values[element].entry, 10); //+++ placeholder!!!
 			}
 		}
+		printf("]\n");
 	}
 }
 
@@ -91,7 +93,6 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 		key[count] = '\0';
 	}
 	memcpy(current_entry.key, key, MAX_KEY);
-	current_snapshot->entries[current_snapshot->num_entries-1] = current_entry;
 	element *values = malloc(sizeof(element) * (array_length - 2));
 	for (int arg = 2; arg < array_length; arg++) {
 		element new_element;
@@ -116,13 +117,16 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 			}
 			memcpy(new_entry.key, new_key, MAX_KEY);
 			new_element.entry = &new_entry;
-			printf("winning");
-			fflush(stdout);
 		}
 		values[arg-2] = new_element;
+		printf("%s", values[1].entry->key);
 	}
 	current_entry.values = values;
 	current_entry.length = array_length-2;
+	current_snapshot->entries[current_snapshot->num_entries-1] = current_entry;
+	// printf("%d", current_entry.values[0].value);
+	// printf("%s", current_entry.values[1].entry->key);
+	// fflush(stdout);
 }
 
 void command_push(char** array) {
@@ -238,10 +242,9 @@ int main(void) {
 		} else if (strcmp("HELP", arg) == 0) {
 			command_help();
 		} else if (strcmp("LIST", arg) == 0) {
-			printf("registered list");
 				char *arg = arg_array[1];//+++
 				if (strcmp("KEYS", arg) == 0) {
-					command_list_keys();
+					command_list_keys(current_snapshot.entries, current_snapshot.num_entries);
 				} else if (strcmp("ENTRIES", arg) == 0) {
 					command_list_entries(current_snapshot.entries, current_snapshot.num_entries);
 				} else if (strcmp("SNAPSHOTS", arg) == 0) {
