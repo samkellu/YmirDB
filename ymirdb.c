@@ -62,9 +62,6 @@ void command_list_entries(entry *entries, int num_entries) {
 			} else {
 				printf("%s", entries[current_entry].values[element].entry->key);
 			}
-			if (element != element_limit-1) {
-				printf(", ");
-			}
 		}
 		printf("]\n");
 	}
@@ -97,9 +94,6 @@ void command_get(char* key, snapshot* current_snapshot) {// +++ rework to return
 					printf("%d", current_element.value);
 				} else {
 					printf("%s", current_element.entry->key);
-				}
-				if (element_num != current_entry.length-1) {
-					printf(", ");
 				}
 			}
 			printf("]\n");
