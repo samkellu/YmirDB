@@ -40,7 +40,7 @@ void command_list_keys(entry *entries, int num_entries) {
 		printf("No keys\n");
 		return;
 	}
-	for (int entry = 0; entry < num_entries; entry++) {
+	for (int entry = num_entries-1; entry >= 0; entry--) {
 		printf("%s\n", entries[entry].key);
 	}
 }
@@ -50,7 +50,7 @@ void command_list_entries(entry *entries, int num_entries) {
 		printf("No entries\n");
 		return;
 	}
-	for (int current_entry = 0; current_entry < num_entries; current_entry++) {
+	for (int current_entry = num_entries - 1; current_entry >= 0; current_entry--) {
 		int element_limit = entries[current_entry].length;
 		printf("%s [", entries[current_entry].key);
 		fflush(stdout);
@@ -79,17 +79,9 @@ void command_list_snapshots(snapshot *snapshots, int num_snapshots) {
 }
 
 void command_get(char* key, snapshot* current_snapshot) {// +++ rework to return the entry, maybe a helper func?
-	char new_key[MAX_KEY];
-	for (int count = 0; count < MAX_KEY; count++) {
-		if (count < strlen(key)) {
-			new_key[count] = key[count];
-			continue;
-		}
-		new_key[count] = '\0';
-	}
 	for (int entry_num = 0; entry_num < current_snapshot->num_entries; entry_num++) {
 		entry current_entry = current_snapshot->entries[entry_num];
-		if (strcmp(current_entry.key, new_key) == 0) {
+		if (strcmp(current_entry.key, key) == 0) {
 			printf("[");
 			for (int element_num = 0; element_num < current_entry.length; element_num++) {
 				element current_element = current_entry.values[element_num];
@@ -118,7 +110,6 @@ void command_purge(char* key) {
 }
 
 void command_set(char** array, int array_length, snapshot* current_snapshot) {
-	printf("setting: \n");
 	current_snapshot->num_entries++;
 	current_snapshot->entries = (entry*) realloc(current_snapshot->entries, current_snapshot->num_entries*sizeof(entry));
 	entry current_entry;
@@ -137,11 +128,9 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 	for (int arg = 2; arg < array_length; arg++) {
 		element new_element;
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
-			printf("	Integer %s\n", array[arg]);
 			new_element.type = INTEGER;
 			new_element.value = (int)strtol(array[arg], NULL, 10);
 		} else {
-			printf("	entry %s\n", array[arg]);
 			new_element.type = ENTRY;
 		//	new_element.backward = current_entry; +++
 		//	current_entry.forward = realloc(current_entry.forward) +++
