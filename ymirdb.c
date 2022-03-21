@@ -9,6 +9,7 @@
 #include <string.h>
 #include <strings.h>
 #include <stdbool.h>
+#include <ctype.h> //Check +++
 
 #include "ymirdb.h"
 
@@ -274,67 +275,67 @@ int main(void) {
 		}
 
 		char *arg = arg_array[0];
-		if (strcmp("BYE", arg) == 0) {
+		if (strcasecmp("BYE", arg) == 0) {
 			command_bye();
 			// return 0;
-		} else if (strcmp("HELP", arg) == 0) {
+		} else if (strcasecmp("HELP", arg) == 0) {
 			command_help();
-		} else if (strcmp("LIST", arg) == 0) {
+		} else if (strcasecmp("LIST", arg) == 0) {
 				char *arg = arg_array[1];//+++
-				if (strcmp("KEYS", arg) == 0) {
+				if (strcasecmp("KEYS", arg) == 0) {
 					command_list_keys(current_snapshot.entries, current_snapshot.num_entries);
-				} else if (strcmp("ENTRIES", arg) == 0) {
+				} else if (strcasecmp("ENTRIES", arg) == 0) {
 					command_list_entries(current_snapshot.entries, current_snapshot.num_entries);
-				} else if (strcmp("SNAPSHOTS", arg) == 0) {
+				} else if (strcasecmp("SNAPSHOTS", arg) == 0) {
 					command_list_snapshots(snapshots, current_snapshot.num_entries);
 				} else {
 					continue;
 				}
-		} else if (strcmp("GET", arg) == 0) {
+		} else if (strcasecmp("GET", arg) == 0) {
 			command_get(arg_array[1], &current_snapshot);
-		} else if (strcmp("DEL", arg) == 0) {
+		} else if (strcasecmp("DEL", arg) == 0) {
 			command_del(arg_array[1], &current_snapshot);
-		} else if (strcmp("PURGE", arg) == 0) {
+		} else if (strcasecmp("PURGE", arg) == 0) {
 			command_purge(arg_array[1]);
-		} else if (strcmp("SET", arg) == 0) {
+		} else if (strcasecmp("SET", arg) == 0) {
 			command_set(arg_array, array_length, &current_snapshot);
-		} else if (strcmp("PUSH", arg) == 0) {
+		} else if (strcasecmp("PUSH", arg) == 0) {
 			command_push(arg_array);
-		} else if (strcmp("APPEND", arg) == 0) {
+		} else if (strcasecmp("APPEND", arg) == 0) {
 			command_append(arg_array);
-		} else if (strcmp("PICK", arg) == 0) {
+		} else if (strcasecmp("PICK", arg) == 0) {
 			command_pick(arg_array[1],arg_array[2]);
-		} else if (strcmp("PLUCK", arg) == 0) {
+		} else if (strcasecmp("PLUCK", arg) == 0) {
 			command_pluck(arg_array[1],arg_array[2]);
-		} else if (strcmp("POP", arg) == 0) {
+		} else if (strcasecmp("POP", arg) == 0) {
 			command_pop(arg_array[1]);
-		} else if (strcmp("DROP", arg) == 0) {
+		} else if (strcasecmp("DROP", arg) == 0) {
 			command_drop(arg_array[1]);
-		} else if (strcmp("ROLLBACK", arg) == 0) {
+		} else if (strcasecmp("ROLLBACK", arg) == 0) {
 			command_rollback(arg_array[1]);
-		} else if (strcmp("CHECKOUT", arg) == 0) {
+		} else if (strcasecmp("CHECKOUT", arg) == 0) {
 			command_checkout(arg_array[1]);
-		} else if (strcmp("SNAPSHOT", arg) == 0) {
+		} else if (strcasecmp("SNAPSHOT", arg) == 0) {
 			command_snapshot();
-		} else if (strcmp("MIN", arg) == 0) {
+		} else if (strcasecmp("MIN", arg) == 0) {
 			command_min(arg_array[1]);
-		} else if (strcmp("MAX", arg) == 0) {
+		} else if (strcasecmp("MAX", arg) == 0) {
 			command_max(arg_array[1]);
-		} else if (strcmp("SUM", arg) == 0) {
+		} else if (strcasecmp("SUM", arg) == 0) {
 			command_sum(arg_array[1]);
-		} else if (strcmp("LEN", arg) == 0) {
+		} else if (strcasecmp("LEN", arg) == 0) {
 			command_len(arg_array[1]);
-		} else if (strcmp("REV", arg) == 0) {
+		} else if (strcasecmp("REV", arg) == 0) {
 			command_rev(arg_array[1]);
-		} else if (strcmp("UNIQ", arg) == 0) {
+		} else if (strcasecmp("UNIQ", arg) == 0) {
 			command_uniq(arg_array[1]);
-		} else if (strcmp("SORT", arg) == 0) {
+		} else if (strcasecmp("SORT", arg) == 0) {
 			command_sort(arg_array[1]);
-		} else if (strcmp("FORWARD", arg) == 0) {
+		} else if (strcasecmp("FORWARD", arg) == 0) {
 			command_forward(arg_array[1]);
-		} else if (strcmp("BACKWARD", arg) == 0) {
+		} else if (strcasecmp("BACKWARD", arg) == 0) {
 			command_backward(arg_array[1]);
-		} else if (strcmp("TYPE", arg) == 0) {
+		} else if (strcasecmp("TYPE", arg) == 0) {
 			if (command_type(arg_array[1])) {
 				printf("GENERAL\n");
 			} else {
