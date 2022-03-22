@@ -64,8 +64,9 @@ void command_list_keys(entry *entries, int num_entries) {
 		return;
 	}
 	for (int entry = num_entries-1; entry >= 0; entry--) {
-		printf("%s\n\n", entries[entry].key);
+		printf("%s\n", entries[entry].key);
 	}
+	printf("\n");
 }
 
 void command_list_entries(entry *entries, int num_entries) {
