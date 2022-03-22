@@ -60,17 +60,17 @@ void command_help() {
 
 void command_list_keys(entry *entries, int num_entries) {
 	if (num_entries == 0) {
-		printf("no keys\n");
+		printf("no keys\n\n");
 		return;
 	}
 	for (int entry = num_entries-1; entry >= 0; entry--) {
-		printf("%s\n", entries[entry].key);
+		printf("%s\n\n", entries[entry].key);
 	}
 }
 
 void command_list_entries(entry *entries, int num_entries) {
 	if (num_entries == 0) {
-		printf("no entries\n");
+		printf("no entries\n\n");
 		return;
 	}
 	for (int current_entry = num_entries - 1; current_entry >= 0; current_entry--) {
@@ -89,14 +89,14 @@ void command_list_entries(entry *entries, int num_entries) {
 				printf(" ");
 			}
 		}
-		printf("]\n");
+		printf("]\n\n");
 	}
 	fflush(stdout);
 }
 
 void command_list_snapshots(snapshot *snapshots, int num_snapshots) {
 	if (num_snapshots == 0) {
-		printf("no snapshots\n");
+		printf("no snapshots\n\n");
 		return;
 	}
 }
@@ -117,10 +117,10 @@ void command_get(char* key, snapshot* current_snapshot) {// +++ rework to return
 				printf(" ");
 			}
 		}
-		printf("]\n");
+		printf("]\n\n");
 		return;
 	}
-	printf("no such key\n");
+	printf("no such key\n\n");
 }
 
 void command_del(char* key, snapshot* current_snapshot, snapshot* snapshots) {
@@ -137,7 +137,7 @@ void command_del(char* key, snapshot* current_snapshot, snapshot* snapshots) {
 		}
 		return;
 	}
-	printf("no such entry\n");
+	printf("no such entry\n\n");
 }
 
 void command_purge(char* key) {
@@ -174,6 +174,7 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 	current_entry.values = values;
 	current_entry.length = array_length-2;
 	current_snapshot->entries[current_snapshot->num_entries-1] = current_entry;
+	printf("\nok\n")
 }
 
 void command_push(char** array) {
