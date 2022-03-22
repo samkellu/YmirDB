@@ -91,7 +91,7 @@ void command_list_entries(entry *entries, int num_entries) {
 		}
 		printf("]\n");
 	}
-	printf("\n")
+	printf("\n");
 	fflush(stdout);
 }
 
