@@ -89,8 +89,9 @@ void command_list_entries(entry *entries, int num_entries) {
 				printf(" ");
 			}
 		}
-		printf("]\n\n");
+		printf("]\n");
 	}
+	printf("\n")
 	fflush(stdout);
 }
 
@@ -174,7 +175,7 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 	current_entry.values = values;
 	current_entry.length = array_length-2;
 	current_snapshot->entries[current_snapshot->num_entries-1] = current_entry;
-	printf("\nok\n");
+	printf("ok\n\n");
 }
 
 void command_push(char** array) {
