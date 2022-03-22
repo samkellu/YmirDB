@@ -174,7 +174,7 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 	current_entry.values = values;
 	current_entry.length = array_length-2;
 	current_snapshot->entries[current_snapshot->num_entries-1] = current_entry;
-	printf("\nok\n")
+	printf("\nok\n");
 }
 
 void command_push(char** array) {
