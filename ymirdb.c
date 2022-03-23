@@ -145,6 +145,7 @@ void command_del(char* key, snapshot* current_snapshot, snapshot* snapshots) {
 			perror("Realloc failed");
 			command_bye(snapshots);
 		}
+		printf("ok\n\n");
 		return;
 	}
 	printf("no such entry\n\n");
