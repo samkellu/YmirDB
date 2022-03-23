@@ -129,7 +129,6 @@ void command_del(char* key, snapshot* current_snapshot, snapshot* snapshots) {
 	entry current_entry = get_entry(key, current_snapshot);
 	fflush(stdout);
 	if (current_entry.length != -1) {
-		free(current_entry.values);
 		int del_found = 0;
 		for  (int entry_index = 0; entry_index < current_snapshot->num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
 			if (strcmp(current_snapshot->entries[entry_index].key, current_entry.key) == 0) {
@@ -140,7 +139,9 @@ void command_del(char* key, snapshot* current_snapshot, snapshot* snapshots) {
 			}
 		}
 		current_snapshot->num_entries--;
-		current_snapshot->entries = realloc(current_snapshot->entries, current_snapshot->num_entries * sizeof(entry));
+		entry* new_entries = realloc(current_snapshot->entries, current_snapshot->num_entries * sizeof(entry));
+		free(current_snapshot->entries);
+		current_snapshot->entries = new_entries;
 		if (current_snapshot->entries == NULL && current_snapshot->num_entries != 0) {
 			perror("Realloc failed");
 			command_bye(snapshots);
@@ -330,7 +331,6 @@ int main(void) {
 		while ((token = strsep(&input, " ")) != NULL) {
 			token = strsep(&token, "\n");
 			arg_array = (char**)realloc(arg_array, (array_length+1)*sizeof(char**));
-			arg_array[array_length] = (char*)malloc(sizeof(char*));
 			arg_array[array_length] = token;
 			array_length++;
 		}
