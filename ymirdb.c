@@ -173,7 +173,7 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
 			new_element.type = INTEGER;
 			new_element.value = (int)strtol(array[arg], NULL, 10);
-			memcpy(&values[arg-2], &new_element, sizeof(new_element));
+			memcpy(&values[arg-2], &new_element, sizeof(element));
 		} else {
 			new_element.type = ENTRY;
 		//	new_element.backward = current_entry; +++
@@ -181,8 +181,8 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 			entry *new_entry = malloc(sizeof(entry)); //has to be on the heap
 			new_entry->length = 0;
 			memcpy(new_entry->key, array[arg], MAX_KEY);
-			memcpy(new_element.entry, new_entry, sizeof(new_entry));
-			memcpy(&values[arg-2], &new_element, sizeof(new_element));
+			memcpy(new_element.entry, new_entry, sizeof(entry));
+			memcpy(&values[arg-2], &new_element, sizeof(element));
 			free(new_entry);
 		}
 	}
