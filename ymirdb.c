@@ -125,7 +125,6 @@ void command_get(char* key, snapshot* snapshots, int snapshot_number) {// +++ re
 
 void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
-	free(current_entry.values);
 	if (current_entry.length != -1) {
 		int del_found = 0;
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
@@ -137,10 +136,9 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 			}
 		}
 		snapshots[snapshot_number].num_entries--;
-		printf("entries %d, %d\n",snapshots[snapshot_number].num_entries, snapshots[0].num_entries);
-		fflush(stdout);
 		entry* new_entries = realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries * sizeof(entry));
 		snapshots[snapshot_number].entries = new_entries;
+		free(current_entry.values);
 		if (snapshots[snapshot_number].entries == NULL && snapshots[snapshot_number].num_entries != 0) {
 			perror("Realloc failed");
 			command_bye(snapshots);
@@ -148,7 +146,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("ok\n\n");
 		return;
 	}
-	printf("no such entry\n\n");
+	printf("no such key\n\n");
 }
 
 void command_purge(char* key) {
