@@ -28,9 +28,9 @@
 // ...
 //
 
-entry get_entry(char* key, snapshot* current_snapshot) {
-	for (int entry_num = 0; entry_num < current_snapshot->num_entries; entry_num++) {
-		entry current_entry = current_snapshot->entries[entry_num];
+entry get_entry(char* key, snapshot* snapshots, int snapshot_number) {
+	for (int entry_num = 0; entry_num < snapshots[snapshot_number].num_entries; entry_num++) {
+		entry current_entry = snapshots[snapshot_number].entries[entry_num];
 		if (strcmp(current_entry.key, key) == 0) {
 			return current_entry;
 		}
@@ -43,8 +43,6 @@ entry get_entry(char* key, snapshot* current_snapshot) {
 void command_bye(snapshot* snapshots) {
 	for (int current_snapshot = 0; current_snapshot < sizeof(snapshots)/sizeof(snapshot*); current_snapshot++) {
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
-			printf("here");
-			fflush(stdout);
 			free(snapshots[current_snapshot].entries[current_entry].values);
 		}
 		free(snapshots[current_snapshot].entries);
@@ -104,8 +102,8 @@ void command_list_snapshots(snapshot *snapshots, int num_snapshots) {
 }
 
 
-void command_get(char* key, snapshot* current_snapshot) {// +++ rework to return the entry, maybe a helper func?
-	entry current_entry = get_entry(key, current_snapshot);
+void command_get(char* key, snapshot* snapshots, int snapshot_number) {// +++ rework to return the entry, maybe a helper func?
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
 		printf("[");
 		for (int element_num = 0; element_num < current_entry.length; element_num++) {
@@ -125,24 +123,25 @@ void command_get(char* key, snapshot* current_snapshot) {// +++ rework to return
 	printf("no such key\n\n");
 }
 
-void command_del(char* key, snapshot* current_snapshot, snapshot* snapshots) {
-	entry current_entry = get_entry(key, current_snapshot);
-	fflush(stdout);
+void command_del(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	free(current_entry.values);
 	if (current_entry.length != -1) {
 		int del_found = 0;
-		for  (int entry_index = 0; entry_index < current_snapshot->num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
-			if (strcmp(current_snapshot->entries[entry_index].key, current_entry.key) == 0) {
+		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
+			if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
 				del_found = 1;
 			}
 			if (del_found) {
-				current_snapshot->entries[entry_index] = current_snapshot->entries[entry_index+1];
+				snapshots[snapshot_number].entries[entry_index] = snapshots[snapshot_number].entries[entry_index+1];
 			}
 		}
-		current_snapshot->num_entries--;
-		entry* new_entries = realloc(current_snapshot->entries, current_snapshot->num_entries * sizeof(entry));
-		free(current_snapshot->entries);
-		current_snapshot->entries = new_entries;
-		if (current_snapshot->entries == NULL && current_snapshot->num_entries != 0) {
+		snapshots[snapshot_number].num_entries--;
+		printf("entries %d, %d\n",snapshots[snapshot_number].num_entries, snapshots[0].num_entries);
+		fflush(stdout);
+		entry* new_entries = realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries * sizeof(entry));
+		snapshots[snapshot_number].entries = new_entries;
+		if (snapshots[snapshot_number].entries == NULL && snapshots[snapshot_number].num_entries != 0) {
 			perror("Realloc failed");
 			command_bye(snapshots);
 		}
@@ -156,12 +155,14 @@ void command_purge(char* key) {
 	//
 }
 
-void command_set(char** array, int array_length, snapshot* current_snapshot) {
-	entry current_entry = get_entry(array[1], current_snapshot);
+void command_set(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
 	if (current_entry.length == -1) {
-		current_snapshot->num_entries++;
-		current_snapshot->entries = (entry*) realloc(current_snapshot->entries, current_snapshot->num_entries*sizeof(entry));
+		snapshots[snapshot_number].num_entries++;
+		snapshots[snapshot_number].entries = (entry*) realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries*sizeof(entry));
 	}
+	printf("entries %d\n",snapshots[snapshot_number].num_entries);
+	fflush(stdout);
 	current_entry.length = array_length-2;
 
 
@@ -172,6 +173,7 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
 			new_element.type = INTEGER;
 			new_element.value = (int)strtol(array[arg], NULL, 10);
+			memcpy(&values[arg-2], &new_element, sizeof(new_element));
 		} else {
 			new_element.type = ENTRY;
 		//	new_element.backward = current_entry; +++
@@ -179,13 +181,14 @@ void command_set(char** array, int array_length, snapshot* current_snapshot) {
 			entry *new_entry = malloc(sizeof(entry)); //has to be on the heap
 			new_entry->length = 0;
 			memcpy(new_entry->key, array[arg], MAX_KEY);
-			new_element.entry = new_entry;
+			memcpy(new_element.entry, new_entry, sizeof(new_entry));
+			memcpy(&values[arg-2], &new_element, sizeof(new_element));
+			free(new_entry);
 		}
-		values[arg-2] = new_element;
 	}
 	current_entry.values = values;
 	current_entry.length = array_length-2;
-	current_snapshot->entries[current_snapshot->num_entries-1] = current_entry;
+	snapshots[snapshot_number].entries[snapshots[snapshot_number].num_entries-1] = current_entry;
 	printf("ok\n\n");
 }
 
@@ -225,8 +228,8 @@ void command_snapshot() {
 	//
 }
 
-void command_min(char* key, snapshot* current_snapshot) {
-	entry current_entry = get_entry(key, current_snapshot);
+void command_min(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
 		int min = INT_MAX;
 		for (int element = 0; element < current_entry.length; element++) {
@@ -240,8 +243,8 @@ void command_min(char* key, snapshot* current_snapshot) {
 	printf("No such entry\n");
 }
 
-void command_max(char* key, snapshot* current_snapshot) {
-	entry current_entry = get_entry(key, current_snapshot);
+void command_max(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
 		int max = INT_MIN;
 		for (int element = 0; element < current_entry.length; element++) {
@@ -255,8 +258,8 @@ void command_max(char* key, snapshot* current_snapshot) {
 	printf("No such entry\n");
 }
 
-void command_sum(char* key, snapshot* current_snapshot) {
-	entry current_entry = get_entry(key, current_snapshot);
+void command_sum(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
 		int sum = 0;
 		for (int element = 0; element < current_entry.length; element++) {
@@ -270,8 +273,8 @@ void command_sum(char* key, snapshot* current_snapshot) {
 	printf("No such entry\n");
 }
 
-void command_len(char* key, snapshot* current_snapshot) {
-	entry current_entry = get_entry(key, current_snapshot);
+void command_len(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
 		printf("%ld\n", current_entry.length);
 		return;
@@ -315,7 +318,7 @@ int main(void) {
 	snapshot *snapshots = (snapshot*) malloc(sizeof(snapshot));
 	snapshot current_snapshot = {snapshot_number, NULL, 0, NULL, NULL};
 	snapshots[0] = current_snapshot;
-	current_snapshot.num_entries = 0;
+	snapshots[0].num_entries = 0;
 	while (true) {
 		printf("> ");
 
@@ -337,6 +340,7 @@ int main(void) {
 
 		char *arg = arg_array[0];
 		if (strcasecmp("BYE", arg) == 0) {
+			free(arg_array);
 			command_bye(snapshots);
 			// return 0;
 		} else if (strcasecmp("HELP", arg) == 0) {
@@ -344,22 +348,22 @@ int main(void) {
 		} else if (strcasecmp("LIST", arg) == 0) {
 				char *arg = arg_array[1];//+++
 				if (strcasecmp("KEYS", arg) == 0) {
-					command_list_keys(current_snapshot.entries, current_snapshot.num_entries);
+					command_list_keys(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries);
 				} else if (strcasecmp("ENTRIES", arg) == 0) {
-					command_list_entries(current_snapshot.entries, current_snapshot.num_entries);
+					command_list_entries(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries);
 				} else if (strcasecmp("SNAPSHOTS", arg) == 0) {
-					command_list_snapshots(snapshots, current_snapshot.num_entries);
+					command_list_snapshots(snapshots, snapshots[snapshot_number].num_entries);
 				} else {
 					continue;
 				}
 		} else if (strcasecmp("GET", arg) == 0) {
-			command_get(arg_array[1], &current_snapshot);
+			command_get(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("DEL", arg) == 0) {
-			command_del(arg_array[1], &current_snapshot, snapshots);
+			command_del(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("PURGE", arg) == 0) {
 			command_purge(arg_array[1]);
 		} else if (strcasecmp("SET", arg) == 0) {
-			command_set(arg_array, array_length, &current_snapshot);
+			command_set(arg_array, array_length, snapshots, snapshot_number);
 		} else if (strcasecmp("PUSH", arg) == 0) {
 			command_push(arg_array);
 		} else if (strcasecmp("APPEND", arg) == 0) {
@@ -379,13 +383,13 @@ int main(void) {
 		} else if (strcasecmp("SNAPSHOT", arg) == 0) {
 			command_snapshot();
 		} else if (strcasecmp("MIN", arg) == 0) {
-			command_min(arg_array[1], &current_snapshot);
+			command_min(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("MAX", arg) == 0) {
-			command_max(arg_array[1], &current_snapshot);
+			command_max(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("SUM", arg) == 0) {
-			command_sum(arg_array[1], &current_snapshot);
+			command_sum(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("LEN", arg) == 0) {
-			command_len(arg_array[1], &current_snapshot);
+			command_len(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("REV", arg) == 0) {
 			command_rev(arg_array[1]);
 		} else if (strcasecmp("UNIQ", arg) == 0) {
