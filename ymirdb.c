@@ -161,8 +161,6 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 		snapshots[snapshot_number].num_entries++;
 		snapshots[snapshot_number].entries = (entry*) realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries*sizeof(entry));
 	}
-	printf("entries %d\n",snapshots[snapshot_number].num_entries);
-	fflush(stdout);
 	current_entry.length = array_length-2;
 
 
