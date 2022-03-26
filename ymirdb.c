@@ -220,15 +220,15 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 			}
 		}
 	}
-	element *values = malloc(sizeof(element) * (array_length - 2));
 	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
 	int mem_index;
 	if (current_entry.length == -1) {
 		snapshots[snapshot_number].num_entries++;
 		current_entry.forward_size = 0;
 		current_entry.backward_size = 0;
-		current_entry.forward = (entry**)malloc(0);
-		current_entry.backward = (entry**)malloc(0);
+		current_entry.forward = NULL;
+		current_entry.backward = NULL;
+		current_entry.values = NULL;
 		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, sizeof(entry)*(snapshots[snapshot_number].num_entries));
 		memcpy(&snapshots[snapshot_number].entries[snapshots[snapshot_number].num_entries-1], &current_entry, sizeof(entry));
 		mem_index = snapshots[snapshot_number].num_entries-1;
@@ -239,7 +239,9 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 				break;
 			}
 		}
+		free(current_entry.values);
 	}
+	element *values = malloc(sizeof(element) * (array_length - 2));
 	current_entry.length = array_length-2;
 
 	memcpy(current_entry.key, array[1], MAX_KEY);
@@ -268,10 +270,7 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	}
 	current_entry.values = values;
 	current_entry.length = array_length-2;
-	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
-	if (current_entry.forward_size == 0) {
-		free(current_entry.forward);
-	}
+	snapshots[snapshot_number].entries[mem_index] = current_entry;
 	printf("ok\n\n");
 }
 
