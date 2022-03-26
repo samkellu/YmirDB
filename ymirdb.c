@@ -156,7 +156,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 						snapshots[snapshot_number].entries[entry_index].forward[forward_index] = snapshots[snapshot_number].entries[entry_index].forward[forward_index+1];
 					}
 				}
-				snapshots[snapshot_number].entries[entry_index].forward--;
+				snapshots[snapshot_number].entries[entry_index].forward_size--;
 				snapshots[snapshot_number].entries[entry_index].forward = realloc(snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry*) * snapshots[snapshot_number].entries[entry_index].forward_size);
 			}
 		}
