@@ -145,8 +145,9 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 		snapshots[snapshot_number].entries = new_entries;
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
 			for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index].length; element_index++) {
+				int del_found = 0;
 				for (int forward_index = 0; forward_index < snapshots[snapshot_number].entries[entry_index].forward_size; forward_index++) {
-					int del_found = 0;
+					del_found = 0;
 					if (snapshots[snapshot_number].entries[entry_index].forward[forward_index] == &current_entry) {
 						del_found = 1;
 					}
@@ -154,10 +155,12 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 						snapshots[snapshot_number].entries[entry_index].forward[forward_index] = snapshots[snapshot_number].entries[entry_index].forward[forward_index+1];
 					}
 				}
-				snapshots[snapshot_number].entries[entry_index].forward_size--;
-				printf("%ld",snapshots[snapshot_number].entries[entry_index].forward_size);
-				fflush(stdout);
-				snapshots[snapshot_number].entries[entry_index].forward = realloc(snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry*) * snapshots[snapshot_number].entries[entry_index].forward_size);
+				if (del_found) {
+					snapshots[snapshot_number].entries[entry_index].forward_size--;
+					printf("%ld",snapshots[snapshot_number].entries[entry_index].forward_size);
+					fflush(stdout);
+					snapshots[snapshot_number].entries[entry_index].forward = realloc(snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry*) * snapshots[snapshot_number].entries[entry_index].forward_size);
+				}
 			}
 		}
 		for (int current_element = 0; current_element < current_entry.length; current_element++) {
