@@ -341,8 +341,27 @@ void command_pluck(char* key, char* index) {
 	//
 }
 
-void command_pop(char* key) {
-	//
+void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	int mem_index;
+	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
+			mem_index = entry_index;
+			break;
+		}
+	}
+
+	if (current_entry.values[current_entry.length-1].type == INTEGER) {
+		printf("%d\n\n", current_entry.values[current_entry.length-1].value);
+	} else {
+		printf("%s\n\n", current_entry.values[current_entry.length-1].entry->key);
+		free(current_entry.values[current_entry.length-1].entry->values);
+		free(current_entry.values[current_entry.length-1].entry->forward);
+		free(current_entry.values[current_entry.length-1].entry->backward);
+	}
+	current_entry.length--;
+	current_entry.values = realloc(current_entry.values, sizeof(element) * current_entry.length);
+	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 }
 
 void command_drop(char* id) {
@@ -511,7 +530,7 @@ int main(void) {
 		} else if (strcasecmp("PLUCK", arg) == 0) {
 			command_pluck(arg_array[1],arg_array[2]);
 		} else if (strcasecmp("POP", arg) == 0) {
-			command_pop(arg_array[1]);
+			command_pop(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("DROP", arg) == 0) {
 			command_drop(arg_array[1]);
 		} else if (strcasecmp("ROLLBACK", arg) == 0) {
