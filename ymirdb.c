@@ -45,8 +45,14 @@ void command_bye(snapshot* snapshots) {
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
 			for (int current_element = 0; current_element < snapshots[current_snapshot].entries[current_entry].length; current_element++) {
 				if (snapshots[current_snapshot].entries[current_entry].values[current_element].type == ENTRY) {
-					free(snapshots[current_snapshot].entries[current_entry].values[current_element].entry->backward);
-					free(snapshots[current_snapshot].entries[current_entry].values[current_element].entry->forward);
+					if (snapshots[current_snapshot].entries[current_entry].backward != NULL) {
+						free(snapshots[current_snapshot].entries[current_entry].backward);
+						snapshots[current_snapshot].entries[current_entry].backward = NULL;
+					}
+					if (snapshots[current_snapshot].entries[current_entry].forward != NULL) {
+						free(snapshots[current_snapshot].entries[current_entry].forward);
+						snapshots[current_snapshot].entries[current_entry].forward = NULL;
+					}
 					free(snapshots[current_snapshot].entries[current_entry].values[current_element].entry);
 				}
 			}
@@ -133,6 +139,20 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 	if (current_entry.length != -1) {
 		int del_found = 0;
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
+			// int element_del_found = 0;
+			// for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index].length; element_index++) {
+			// 	element el = snapshots[snapshot_number].entries[entry_index].values[element_index];
+			// 	if (el.type == ENTRY && strcmp(el.entry->key, current_entry.key) == 0) {
+			// 		element_del_found = 1;
+			// 	}
+			// 	if (element_del_found) {
+			// 		snapshots[snapshot_number].entries[entry_index].values[element_index] = snapshots[snapshot_number].entries[entry_index].values[element_index+1];
+			// 	}
+			// }
+			// if (element_del_found) {
+			// 	snapshots[snapshot_number].entries[entry_index].length--;
+			// 	snapshots[snapshot_number].entries[entry_index].values = realloc(snapshots[snapshot_number].entries[entry_index].values, snapshots[snapshot_number].entries[entry_index].length*sizeof(element));
+			// }
 			if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
 				del_found = 1;
 			}
@@ -171,8 +191,6 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 			}
 		}
 		free(current_entry.values);
-		free(current_entry.forward);
-		free(current_entry.backward);
 		if (snapshots[snapshot_number].entries == NULL && snapshots[snapshot_number].num_entries != 0) {
 			perror("Realloc failed");
 			command_bye(snapshots);
@@ -242,6 +260,7 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 			new_element.type = ENTRY;
 			entry* heaped_entry = malloc(sizeof(entry));
 			memcpy(heaped_entry, &test_entry, sizeof(entry));
+			free(test_entry.backward);
 			new_element.entry = heaped_entry;
 			current_entry.forward[current_entry.forward_size-1] = heaped_entry;
 			memcpy(&values[arg-2], &new_element, sizeof(element));
@@ -250,6 +269,9 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	current_entry.values = values;
 	current_entry.length = array_length-2;
 	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
+	if (current_entry.forward_size == 0) {
+		free(current_entry.forward);
+	}
 	printf("ok\n\n");
 }
 
@@ -301,6 +323,7 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 			new_element.type = ENTRY;
 			entry* heaped_entry = malloc(sizeof(entry));
 			memcpy(heaped_entry, &test_entry, sizeof(entry));
+			//+++free(test_entry.backward);
 			new_element.entry = heaped_entry;
 			current_entry.forward[current_entry.forward_size-1] = heaped_entry;
 			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));

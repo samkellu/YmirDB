@@ -1,0 +1,10 @@
+
+=================================================================
+==584==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 32 byte(s) in 2 object(s) allocated from:
+    #0 0x7f40d74adffe in __interceptor_realloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dffe)
+    #1 0x7f40d7e27202 in main (/mnt/c/Users/samke/desktop/uni/comp2017/ymirdb/ymirdb+0x8202)
+    #2 0x7f40d71c40b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+
+SUMMARY: AddressSanitizer: 32 byte(s) leaked in 2 allocation(s).
