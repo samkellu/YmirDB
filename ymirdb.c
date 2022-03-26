@@ -29,11 +29,6 @@
 //
 
 entry get_entry(char* key, snapshot* snapshots, int snapshot_number) {
-	// if (snapshots[snapshot_number].num_entries == 0) {
-	// 	entry null_entry;
-	// 	null_entry.length = -2;
-	// 	return null_entry;
-	// }
 	for (int entry_num = 0; entry_num < snapshots[snapshot_number].num_entries; entry_num++) {
 		entry current_entry = snapshots[snapshot_number].entries[entry_num];
 		if (strcmp(current_entry.key, key) == 0) {
@@ -150,7 +145,9 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 		snapshots[snapshot_number].entries = new_entries;
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
 			for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index].length; element_index++) {
-				for (int forward_index = 0; forward_index < snapshots[snapshot_number].entries[entry_index].forward_size - 1; forward_index++) {
+				printf("%ld",snapshots[snapshot_number].entries[entry_index].forward_size);
+				fflush(stdout);
+				for (int forward_index = 0; forward_index < snapshots[snapshot_number].entries[entry_index].forward_size; forward_index++) {
 					int del_found = 0;
 					if (snapshots[snapshot_number].entries[entry_index].forward[forward_index] == &current_entry) {
 						del_found = 1;
@@ -160,7 +157,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 					}
 				}
 				snapshots[snapshot_number].entries[entry_index].forward--;
-				snapshots[snapshot_number].entries[entry_index].forward = realloc(snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry) * snapshots[snapshot_number].entries[entry_index].forward_size);
+				snapshots[snapshot_number].entries[entry_index].forward = realloc(snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry*) * snapshots[snapshot_number].entries[entry_index].forward_size);
 			}
 		}
 		for (int current_element = 0; current_element < current_entry.length; current_element++) {
@@ -171,6 +168,8 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 			}
 		}
 		free(current_entry.values);
+		free(current_entry.forward);
+		free(current_entry.backward);
 		if (snapshots[snapshot_number].entries == NULL && snapshots[snapshot_number].num_entries != 0) {
 			perror("Realloc failed");
 			command_bye(snapshots);
@@ -186,19 +185,35 @@ void command_purge(char* key) {
 }
 
 void command_set(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
+	element *values = malloc(sizeof(element) * (array_length - 2));
+	for (int check_arg = 2; check_arg < array_length; check_arg++) {
+		if (!((char)array[check_arg][0] >= '0' && (char)array[check_arg][0] <= '9')) {
+			if (strcmp(array[check_arg], array[1]) == 0) {
+				printf("not permitted\n\n");
+				free(values);
+				return;
+			}
+			entry test_entry = get_entry(array[check_arg], snapshots, snapshot_number);
+			if (test_entry.length == -1) {
+				printf("no such key\n\n");
+				free(values);
+				return;
+			}
+		}
+	}
 	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
 	int mem_index;
 	if (current_entry.length == -1) {
 		snapshots[snapshot_number].num_entries++;
 		current_entry.forward_size = 0;
 		current_entry.backward_size = 0;
-		current_entry.forward = malloc(0);
-		current_entry.backward = malloc(0);
+		current_entry.forward = (entry**)malloc(0);
+		current_entry.backward = (entry**)malloc(0);
 		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, sizeof(entry)*(snapshots[snapshot_number].num_entries));
 		memcpy(&snapshots[snapshot_number].entries[snapshots[snapshot_number].num_entries-1], &current_entry, sizeof(entry));
 		mem_index = snapshots[snapshot_number].num_entries-1;
 } else {
-		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
+		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 			if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
 				mem_index = entry_index;
 				break;
@@ -208,7 +223,6 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	current_entry.length = array_length-2;
 
 	memcpy(current_entry.key, array[1], MAX_KEY);
-	element *values = malloc(sizeof(element) * (array_length - 2));
 	for (int arg = 2; arg < array_length; arg++) {
 		element new_element;
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
@@ -217,16 +231,6 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 			memcpy(&values[arg-2], &new_element, sizeof(element));
 		} else {
 			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
-			if (test_entry.length == -1) {
-				printf("no such key\n\n");
-				free(values);
-				return;
-			}
-			if (strcmp(test_entry.key, current_entry.key) == 0) {
-				printf("not permitted\n\n");
-				free(values);
-				return;
-			}
 			test_entry.backward_size++;
 			test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
 			test_entry.backward[0] = &current_entry;
@@ -244,7 +248,6 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	current_entry.values = values;
 	current_entry.length = array_length-2;
 	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
-	// snapshots[snapshot_number].entries[mem_index] = current_entry;
 	printf("ok\n\n");
 }
 
@@ -252,8 +255,51 @@ void command_push(char** array) {
 	//
 }
 
-void command_append(char** array) {
-	//
+void command_append(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
+	if (current_entry.length == -1) {
+		printf("no such key\n\n");
+		return;
+	}
+	for (int current_element = 2; current_element < array_length; current_element++) {
+		if (strcmp(array[current_element], current_entry.key) == 0) {
+			printf("not permitted\n\n");
+			return;
+		}
+	}
+	int mem_index;
+	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
+			mem_index = entry_index;
+			break;
+		}
+	}
+	current_entry.values = realloc(current_entry.values, (current_entry.length + array_length - 2) * sizeof(element));
+	for (int arg = current_entry.length + 1; arg < current_entry.length + array_length - 1; arg++) {
+		element new_element;
+		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
+			new_element.type = INTEGER;
+			new_element.value = (int)strtol(array[arg], NULL, 10);
+			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
+		} else {
+			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
+			test_entry.backward_size++;
+			test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
+			test_entry.backward[0] = &current_entry;
+
+			current_entry.forward_size++;
+			current_entry.forward = realloc(current_entry.forward, current_entry.forward_size * sizeof(entry*));
+			new_element.type = ENTRY;
+			entry* heaped_entry = malloc(sizeof(entry));
+			memcpy(heaped_entry, &test_entry, sizeof(entry));
+			new_element.entry = heaped_entry;
+			current_entry.forward[current_entry.forward_size-1] = heaped_entry;
+			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
+		}
+	}
+	current_entry.length += array_length - 2;
+	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
+	printf("ok\n\n");
 }
 
 void command_pick(char* key, char* index) {
@@ -314,16 +360,21 @@ void command_max(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("No such entry\n");
 }
 
+int recursive_sum(entry current_entry, int sum) {
+	for (int element = 0; element < current_entry.length; element++) {
+		if (current_entry.values[element].type == INTEGER) {
+			sum += current_entry.values[element].value;
+		} else {
+			sum = recursive_sum(*current_entry.values[element].entry, sum);
+		}
+	}
+	return sum;
+}
+
 void command_sum(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
-		int sum = 0;
-		for (int element = 0; element < current_entry.length; element++) {
-			if (current_entry.values[element].type == INTEGER) {
-				sum += current_entry.values[element].value;
-			}
-		}
-		printf("%d\n", sum);
+		printf("%d\n", recursive_sum(current_entry, 0));
 		return;
 	}
 	printf("No such entry\n");
@@ -423,7 +474,7 @@ int main(void) {
 		} else if (strcasecmp("PUSH", arg) == 0) {
 			command_push(arg_array);
 		} else if (strcasecmp("APPEND", arg) == 0) {
-			command_append(arg_array);
+			command_append(arg_array, array_length, snapshots, snapshot_number);
 		} else if (strcasecmp("PICK", arg) == 0) {
 			command_pick(arg_array[1],arg_array[2]);
 		} else if (strcasecmp("PLUCK", arg) == 0) {
