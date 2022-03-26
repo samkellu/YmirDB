@@ -155,7 +155,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 					}
 				}
 				snapshots[snapshot_number].entries[entry_index].forward_size--;
-				printf("%d",snapshots[snapshot_number].entries[entry_index].forward_size--);
+				printf("%ld",snapshots[snapshot_number].entries[entry_index].forward_size);
 				fflush(stdout);
 				snapshots[snapshot_number].entries[entry_index].forward = realloc(snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry*) * snapshots[snapshot_number].entries[entry_index].forward_size);
 			}
