@@ -187,23 +187,22 @@ void command_purge(char* key) {
 	//
 }
 
+
 void command_set(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
-	element *values = malloc(sizeof(element) * (array_length - 2));
 	for (int check_arg = 2; check_arg < array_length; check_arg++) {
 		if (!((char)array[check_arg][0] >= '0' && (char)array[check_arg][0] <= '9')) {
 			if (strcmp(array[check_arg], array[1]) == 0) {
 				printf("not permitted\n\n");
-				free(values);
 				return;
 			}
 			entry test_entry = get_entry(array[check_arg], snapshots, snapshot_number);
 			if (test_entry.length == -1) {
 				printf("no such key\n\n");
-				free(values);
 				return;
 			}
 		}
 	}
+	element *values = malloc(sizeof(element) * (array_length - 2));
 	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
 	int mem_index;
 	if (current_entry.length == -1) {
@@ -215,7 +214,7 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, sizeof(entry)*(snapshots[snapshot_number].num_entries));
 		memcpy(&snapshots[snapshot_number].entries[snapshots[snapshot_number].num_entries-1], &current_entry, sizeof(entry));
 		mem_index = snapshots[snapshot_number].num_entries-1;
-} else {
+	} else {
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 			if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
 				mem_index = entry_index;
@@ -258,17 +257,24 @@ void command_push(char** array) {
 	//
 }
 
-void command_append(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
-	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
+int value_checks(char** array, int array_length, entry current_entry) { //+++ not necessary??
 	if (current_entry.length == -1) {
 		printf("no such key\n\n");
-		return;
+		return 1;
 	}
 	for (int current_element = 2; current_element < array_length; current_element++) {
 		if (strcmp(array[current_element], current_entry.key) == 0) {
 			printf("not permitted\n\n");
-			return;
+			return 1;
 		}
+	}
+	return 0;
+}
+
+void command_append(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
+	if (value_checks(array, array_length, current_entry)) {
+		return;
 	}
 	int mem_index;
 	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
