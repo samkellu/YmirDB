@@ -343,6 +343,10 @@ void command_pluck(char* key, char* index) {
 
 void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	if (current_entry.length <= 0) {
+		printf("nil\n\n");
+		return;
+	}
 	int mem_index = -1;
 	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
@@ -351,7 +355,7 @@ void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
 		}
 	}
 	if (mem_index == -1) {
-		printf("no such key");
+		printf("no such key\n\n");
 		return;
 	}
 
