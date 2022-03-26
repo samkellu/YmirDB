@@ -351,8 +351,8 @@ void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
 		}
 	}
 	if (mem_index == -1) {
-		printf("No such key");
-		command_bye(snapshots);
+		printf("no such key");
+		return;
 	}
 
 	if (current_entry.values[current_entry.length-1].type == INTEGER) {
