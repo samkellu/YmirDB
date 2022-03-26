@@ -339,6 +339,7 @@ void command_pick(char* key, char* index) {
 
 void command_pluck(char* key, int index, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	index--;
 	if (current_entry.length <= index) {
 		printf("index out of range\n\n");
 		return;
@@ -377,7 +378,7 @@ void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("nil\n\n");
 		return;
 	}
-	command_pluck(key, 0, snapshots, snapshot_number);
+	command_pluck(key, 1, snapshots, snapshot_number);
 }
 
 void command_drop(char* id) {
