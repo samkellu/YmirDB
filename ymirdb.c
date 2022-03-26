@@ -347,16 +347,16 @@ void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("nil\n\n");
 		return;
 	}
+	if (current_entry.length == -1) {
+		printf("no such key\n\n");
+		return;
+	}
 	int mem_index = -1;
 	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
 			mem_index = entry_index;
 			break;
 		}
-	}
-	if (mem_index == -1) {
-		printf("no such key\n\n");
-		return;
 	}
 
 	if (current_entry.values[0].type == INTEGER) {
