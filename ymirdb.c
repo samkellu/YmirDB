@@ -359,13 +359,16 @@ void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
 		return;
 	}
 
-	if (current_entry.values[current_entry.length-1].type == INTEGER) {
-		printf("%d\n\n", current_entry.values[current_entry.length-1].value);
+	if (current_entry.values[0].type == INTEGER) {
+		printf("%d\n\n", current_entry.values[0].value);
 	} else {
-		printf("%s\n\n", current_entry.values[current_entry.length-1].entry->key);
-		free(current_entry.values[current_entry.length-1].entry->values);
-		free(current_entry.values[current_entry.length-1].entry->forward);
-		free(current_entry.values[current_entry.length-1].entry->backward);
+		printf("%s\n\n", current_entry.values[0].entry->key);
+		free(current_entry.values[0].entry->values);
+		free(current_entry.values[0].entry->forward);
+		free(current_entry.values[0].entry->backward);
+	}
+	for (int element_index = 0; element_index < current_entry.length-1; element_index++) {
+		current_entry.values[element_index] = current_entry.values[element_index + 1];
 	}
 	current_entry.length--;
 	current_entry.values = realloc(current_entry.values, sizeof(element) * current_entry.length);
