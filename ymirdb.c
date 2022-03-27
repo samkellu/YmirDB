@@ -384,8 +384,21 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 	printf("ok\n\n");
 }
 
-void command_pick(char* key, char* index) {
-	//
+void command_pick(char* key, int index, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	if (current_entry.length == -1) {
+		printf("no such entry\n\n");
+		return;
+	}
+	if (index >= current_entry.length || index < 0) {
+		printf("index out of range\n\n");
+		return;
+	}
+	if (current_entry.values[index].type == INTEGER) {
+		printf("%d\n\n", current_entry.values[index].value);
+		return;
+	}
+	printf("%s\n\n", current_entry.values[index].entry->key);
 }
 
 void command_pluck(char* key, int index, snapshot* snapshots, int snapshot_number) {
@@ -660,7 +673,7 @@ int main(void) {
 		} else if (strcasecmp("APPEND", arg) == 0) {
 			command_append(arg_array, array_length, snapshots, snapshot_number);
 		} else if (strcasecmp("PICK", arg) == 0) {
-			command_pick(arg_array[1],arg_array[2]);
+			command_pick(arg_array[1],strtol(arg_array[2], NULL, 10), snapshots, snapshot_number);
 		} else if (strcasecmp("PLUCK", arg) == 0 && array_length >= 3) {
 			command_pluck(arg_array[1],strtol(arg_array[2], NULL, 10), snapshots, snapshot_number);
 		} else if (strcasecmp("POP", arg) == 0) {
