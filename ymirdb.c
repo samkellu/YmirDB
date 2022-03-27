@@ -461,34 +461,48 @@ void command_snapshot() {
 	//
 }
 
+int recursive_min(entry current_entry, int min) {
+	for (int element = 0; element < current_entry.length; element++) {
+		if (current_entry.values[element].type == INTEGER) {
+			if (current_entry.values[element].value < min) {
+				min = current_entry.values[element].value;
+			}
+		} else {
+			min = recursive_min(*current_entry.values[element].entry, min);
+		}
+	}
+	return min;
+}
+
 void command_min(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
-		int min = INT_MAX;
-		for (int element = 0; element < current_entry.length; element++) {
-			if (current_entry.values[element].type == INTEGER && current_entry.values[element].value <= min) {
-				min = current_entry.values[element].value;
-			}
-		}
-		printf("%d\n", min);
+		printf("%d\n\n", recursive_min(current_entry, INT_MAX));
 		return;
 	}
-	printf("No such entry\n");
+	printf("No such entry\n\n");
+}
+
+int recursive_max(entry current_entry, int max) {
+	for (int element = 0; element < current_entry.length; element++) {
+		if (current_entry.values[element].type == INTEGER) {
+			if (current_entry.values[element].value > max) {
+				max = current_entry.values[element].value;
+			}
+		} else {
+			max = recursive_max(*current_entry.values[element].entry, max);
+		}
+	}
+	return max;
 }
 
 void command_max(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
-		int max = INT_MIN;
-		for (int element = 0; element < current_entry.length; element++) {
-			if (current_entry.values[element].type == INTEGER && current_entry.values[element].value >= max) {
-				max = current_entry.values[element].value;
-			}
-		}
-		printf("%d\n", max);
+		printf("%d\n\n", recursive_max(current_entry, INT_MIN));
 		return;
 	}
-	printf("No such entry\n");
+	printf("No such entry\n\n");
 }
 
 int recursive_sum(entry current_entry, int sum) {
@@ -505,10 +519,10 @@ int recursive_sum(entry current_entry, int sum) {
 void command_sum(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
-		printf("%d\n", recursive_sum(current_entry, 0));
+		printf("%d\n\n", recursive_sum(current_entry, 0));
 		return;
 	}
-	printf("No such entry\n");
+	printf("No such entry\n\n");
 }
 
 void command_len(char* key, snapshot* snapshots, int snapshot_number) {
@@ -644,11 +658,15 @@ void command_backward(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("\n\n");
 }
 
-int command_type(char* key) {// +++ check all elements in entry...
-	if (key[0] >= '0' && key[0] <= '9') {
-		return 0;
+void command_type(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	for (int current_element = 0; current_element < current_entry.length; current_element++) {
+		if (current_entry.values[current_element].type == ENTRY) {
+			printf("general\n\n");
+			return;
+		}
 	}
-	return 1;
+	printf("simple\n\n");
 }
 
 int main(void) {
@@ -684,7 +702,6 @@ int main(void) {
 		if (strcasecmp("BYE", arg) == 0) {
 			free(arg_array);
 			command_bye(snapshots);
-			// return 0;
 		} else if (strcasecmp("HELP", arg) == 0) {
 			command_help();
 		} else if (strcasecmp("LIST", arg) == 0) {
@@ -712,7 +729,7 @@ int main(void) {
 			command_append(arg_array, array_length, snapshots, snapshot_number);
 		} else if (strcasecmp("PICK", arg) == 0) {
 			command_pick(arg_array[1],strtol(arg_array[2], NULL, 10), snapshots, snapshot_number);
-		} else if (strcasecmp("PLUCK", arg) == 0 && array_length >= 3) {
+		} else if (strcasecmp("PLUCK", arg) == 0 && array_length == 3) {
 			command_pluck(arg_array[1],strtol(arg_array[2], NULL, 10), snapshots, snapshot_number);
 		} else if (strcasecmp("POP", arg) == 0) {
 			command_pop(arg_array[1], snapshots, snapshot_number);
@@ -742,12 +759,8 @@ int main(void) {
 			command_forward(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("BACKWARD", arg) == 0) {
 			command_backward(arg_array[1], snapshots, snapshot_number);
-		} else if (strcasecmp("TYPE", arg) == 0) {
-			if (command_type(arg_array[1])) {
-				printf("GENERAL\n");
-			} else {
-				printf("SIMPLE\n");
-			}
+		} else if (strcasecmp("TYPE", arg) == 0 && array_length == 2) {
+			command_type(arg_array[1], snapshots, snapshot_number);
 		}
 		free(arg_array);
 	}
