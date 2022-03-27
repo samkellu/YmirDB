@@ -205,7 +205,6 @@ void command_purge(char* key) {
 	//
 }
 
-
 void command_set(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
 	for (int check_arg = 2; check_arg < array_length; check_arg++) {
 		if (!((char)array[check_arg][0] >= '0' && (char)array[check_arg][0] <= '9')) {
@@ -543,8 +542,45 @@ void command_rev(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("ok\n\n");
 }
 
-void command_uniq(char* key) {
-	//
+void command_uniq(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	if (current_entry.length == -1) {
+		printf("no such key\n\n");
+		return;
+	}
+	int mem_index = -1;
+	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
+			mem_index = entry_index;
+			break;
+		}
+	}
+
+	element* new_val = malloc(sizeof(element) * current_entry.length);
+	int counter = 0;
+	for (int element = 0; element < current_entry.length; element++) {
+		int valid = 1;
+		for (int prev_element = 0; prev_element < element; prev_element++) {
+			if (current_entry.values[element].type == INTEGER) {
+				if (current_entry.values[element].value == current_entry.values[prev_element].value) {
+					valid = 0;
+				}
+			} else {
+				if (current_entry.values[element].entry == current_entry.values[prev_element].entry) {
+					valid = 0;
+				}
+			}
+		}
+		if (valid) {
+			new_val[counter++] = current_entry.values[element];
+		}
+	}
+	new_val = realloc(new_val, sizeof(element) * (counter + 1));
+	current_entry.values = new_val;
+	current_entry.values = realloc(current_entry.values, sizeof(element) * (counter + 1));
+	current_entry.length = counter;
+	snapshots[snapshot_number].entries[mem_index] = current_entry;
+	printf("ok\n\n");
 }
 
 void command_sort(char* key) {
@@ -698,7 +734,7 @@ int main(void) {
 		} else if (strcasecmp("REV", arg) == 0) {
 			command_rev(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("UNIQ", arg) == 0) {
-			command_uniq(arg_array[1]);
+			command_uniq(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("SORT", arg) == 0) {
 			command_sort(arg_array[1]);
 		} else if (strcasecmp("FORWARD", arg) == 0) {
