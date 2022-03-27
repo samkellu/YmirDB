@@ -598,8 +598,45 @@ void command_uniq(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("ok\n\n");
 }
 
-void command_sort(char* key) {
-	//
+void command_sort(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	if (current_entry.length == -1) {
+		printf("no such key\n\n");
+		return;
+	}
+	int mem_index = -1;
+	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
+			mem_index = entry_index;
+			break;
+		}
+	}
+
+	element* new_val = malloc(sizeof(element) * current_entry.length);
+	int counter = 0;
+	for (int element = 0; element < current_entry.length; element++) {
+		if (current_entry.values[element].type == INTEGER) {
+		} else {
+			printf("simple entry only\n\n");
+			free(new_val);
+			return;
+		}
+		for (int prev_element = 0; prev_element < element; prev_element++) {
+			if (current_entry.values[element].value >= current_entry.values[prev_element].value) {
+				new_val[element] = current_entry.values[element];
+				break;
+			}
+			new_val[element + 1] = new_val[element];
+		}
+	}
+	printf("%d", new_val[0].value);
+	new_val = realloc(new_val, sizeof(element) * (counter));
+	current_entry.values = realloc(current_entry.values, sizeof(element) * (counter));
+	memcpy(current_entry.values, new_val, sizeof(element) * (counter));
+	free(new_val);
+	current_entry.length = counter;
+	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
+	printf("ok\n\n");
 }
 
 void recurse_forward(entry current_entry) {
@@ -754,7 +791,7 @@ int main(void) {
 		} else if (strcasecmp("UNIQ", arg) == 0) {
 			command_uniq(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("SORT", arg) == 0) {
-			command_sort(arg_array[1]);
+			command_sort(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("FORWARD", arg) == 0) {
 			command_forward(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("BACKWARD", arg) == 0) {
