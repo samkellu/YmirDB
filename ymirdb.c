@@ -263,7 +263,7 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 			new_element.type = ENTRY;
 			entry* heaped_entry = malloc(sizeof(entry));
 			memcpy(heaped_entry, &test_entry, sizeof(entry));
-			printf("%s", heaped_entry->backward[heaped_entry->backward_size-1]->key);
+			// printf("%s", heaped_entry->backward[heaped_entry->backward_size-1]->key);
 			// free(test_entry.backward);
 			new_element.entry = heaped_entry;
 			current_entry.forward[current_entry.forward_size-1] = heaped_entry;
