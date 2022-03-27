@@ -388,7 +388,7 @@ void command_pick(char* key, int index, snapshot* snapshots, int snapshot_number
 	index--;
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length == -1) {
-		printf("no such entry\n\n");
+		printf("no such key\n\n");
 		return;
 	}
 	if (index >= current_entry.length || index < 0) {
