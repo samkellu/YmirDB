@@ -514,42 +514,42 @@ void command_forward(char* key, snapshot* snapshots, int snapshot_number) {
 	recurse_forward(current_entry);
 	printf("\n\n");
 }
+//+++ fix these
+void recurse_backward(entry current_entry) {
+	if (current_entry.backward_size == 0) {
+		return;
+	}
+	for (int back_index = 0; back_index < current_entry.backward_size; back_index++) {
+		printf("%s", current_entry.backward[back_index]->key);
+		if (!(back_index == current_entry.backward_size - 1 && current_entry.backward[back_index]->backward_size == 0)) {
+			printf(", ");
+		}
+		recurse_backward(*current_entry.backward[back_index]);
+	}
+}
 
-// void recurse_backward(entry current_entry) {
-// 	if (current_entry.backward_size == 0) {
-// 		return;
-// 	}
-// 	for (int back_index = 0; back_index < current_entry.backward_size; back_index++) {
-// 		printf("%s", current_entry.backward[back_index]->key);
-// 		if (!(back_index == current_entry.backward_size - 1 && current_entry.backward[back_index]->backward_size == 0)) {
-// 			printf(", ");
-// 		}
-// 		recurse_backward(*current_entry.backward[back_index]);
-// 	}
-// }
-//
-// void command_backward(char* key, snapshot* snapshots, int snapshot_number) {
-// 	entry current_entry = get_entry(key, snapshots, snapshot_number);
-// 	printf("%s", current_entry.backward[0]->key);
-//
-// 	if (current_entry.length == -1) {
-// 		printf("no such entry\n\n");
-// 		return;
-// 	}
-// 	if (current_entry.backward_size == 0) {
-// 		printf("nil\n\n");
-// 		return;
-// 	}
-// 	recurse_backward(current_entry);
-// 	printf("\n\n");
-// }
-//
-// int command_type(char* key) {// +++ check all elements in entry...
-// 	if (key[0] >= '0' && key[0] <= '9') {
-// 		return 0;
-// 	}
-// 	return 1;
-// }
+void command_backward(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	printf("%s", current_entry.backward[0]->key);
+
+	if (current_entry.length == -1) {
+		printf("no such entry\n\n");
+		return;
+	}
+	if (current_entry.backward_size == 0) {
+		printf("nil\n\n");
+		return;
+	}
+	recurse_backward(current_entry);
+	printf("\n\n");
+}
+
+int command_type(char* key) {// +++ check all elements in entry...
+	if (key[0] >= '0' && key[0] <= '9') {
+		return 0;
+	}
+	return 1;
+}
 
 int main(void) {
 
