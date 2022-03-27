@@ -315,10 +315,10 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
 		} else {
 			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
-			test_entry.backward_size++;
-			test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
-			entry* test_entry_ptr = &current_entry;
-			memcpy(test_entry.backward[0], test_entry_ptr, sizeof(entry*));
+			// test_entry.backward_size++;
+			// test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
+			// entry* test_entry_ptr = &current_entry;
+			// memcpy(test_entry.backward[0], test_entry_ptr, sizeof(entry)); +++ fix backwards
 
 			current_entry.forward_size++;
 			current_entry.forward = realloc(current_entry.forward, current_entry.forward_size * sizeof(entry*));
