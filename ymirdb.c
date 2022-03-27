@@ -293,7 +293,7 @@ int value_checks(char** array, int array_length, entry current_entry) { //+++ no
 void command_push(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
 	if (current_entry.length == -1) {
-		printf("no such entry\n\n");
+		printf("no such key\n\n");
 		return;
 	}
 	if (value_checks(array, array_length, current_entry)) {
