@@ -558,26 +558,27 @@ void command_uniq(char* key, snapshot* snapshots, int snapshot_number) {
 
 	element* new_val = malloc(sizeof(element) * current_entry.length);
 	int counter = 0;
+	int valid = 1;
 	for (int element = 0; element < current_entry.length; element++) {
-		int valid = 1;
-		for (int prev_element = 0; prev_element < element; prev_element++) {
-			if (current_entry.values[element].type == INTEGER) {
-				if (current_entry.values[element].value == current_entry.values[prev_element].value) {
-					valid = 0;
-				}
+		if (current_entry.values[element].type == INTEGER) {
+			if (element != 0 && current_entry.values[element].value == current_entry.values[element - 1].value) {
+				valid = 0;
 			} else {
-				if (current_entry.values[element].entry == current_entry.values[prev_element].entry) {
-					valid = 0;
-				}
+				valid = 1;
 			}
+		} else {
+			printf("simple entry only\n\n");
+			free(new_val);
+			return;
 		}
 		if (valid) {
 			new_val[counter++] = current_entry.values[element];
 		}
 	}
 	new_val = realloc(new_val, sizeof(element) * (counter + 1));
-	current_entry.values = new_val;
 	current_entry.values = realloc(current_entry.values, sizeof(element) * (counter + 1));
+	memcpy(current_entry.values, &new_val, sizeof(element) * (counter + 1));
+	free(new_val);
 	current_entry.length = counter;
 	snapshots[snapshot_number].entries[mem_index] = current_entry;
 	printf("ok\n\n");
