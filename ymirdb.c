@@ -575,12 +575,12 @@ void command_uniq(char* key, snapshot* snapshots, int snapshot_number) {
 			new_val[counter++] = current_entry.values[element];
 		}
 	}
-	new_val = realloc(new_val, sizeof(element) * (counter + 1));
-	current_entry.values = realloc(current_entry.values, sizeof(element) * (counter + 1));
-	memcpy(current_entry.values, &new_val, sizeof(element) * (counter + 1));
+	new_val = realloc(new_val, sizeof(element) * (counter));
+	current_entry.values = realloc(current_entry.values, sizeof(element) * (counter));
+	memcpy(current_entry.values, new_val, sizeof(element) * (counter));
 	free(new_val);
 	current_entry.length = counter;
-	snapshots[snapshot_number].entries[mem_index] = current_entry;
+	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 	printf("ok\n\n");
 }
 
