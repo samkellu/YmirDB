@@ -253,16 +253,18 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 			memcpy(&values[arg-2], &new_element, sizeof(element));
 		} else {
 			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
+
 			test_entry.backward_size++;
 			test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
-			test_entry.backward[0] = &current_entry;
+			test_entry.backward[test_entry.backward_size-1] = &current_entry;
 
 			current_entry.forward_size++;
 			current_entry.forward = realloc(current_entry.forward, current_entry.forward_size * sizeof(entry*));
 			new_element.type = ENTRY;
 			entry* heaped_entry = malloc(sizeof(entry));
 			memcpy(heaped_entry, &test_entry, sizeof(entry));
-			free(test_entry.backward);
+			printf("%s", heaped_entry->backward[heaped_entry->backward_size-1]->key);
+			// free(test_entry.backward);
 			new_element.entry = heaped_entry;
 			current_entry.forward[current_entry.forward_size-1] = heaped_entry;
 			memcpy(&values[arg-2], &new_element, sizeof(element));
@@ -315,14 +317,14 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
 			test_entry.backward_size++;
 			test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
-			test_entry.backward[0] = &current_entry;
+			entry* test_entry_ptr = &current_entry;
+			memcpy(test_entry.backward[0], test_entry_ptr, sizeof(entry*));
 
 			current_entry.forward_size++;
 			current_entry.forward = realloc(current_entry.forward, current_entry.forward_size * sizeof(entry*));
 			new_element.type = ENTRY;
 			entry* heaped_entry = malloc(sizeof(entry));
 			memcpy(heaped_entry, &test_entry, sizeof(entry));
-			//+++free(test_entry.backward);
 			new_element.entry = heaped_entry;
 			current_entry.forward[current_entry.forward_size-1] = heaped_entry;
 			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
@@ -456,8 +458,26 @@ void command_len(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("No such entry\n");
 }
 
-void command_rev(char* key) {
-	//
+void command_rev(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	int mem_index = -1;
+	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
+			mem_index = entry_index;
+			break;
+		}
+	}
+	if (mem_index == -1) {
+		printf("no such entry\n\n");
+		return;
+	}
+	element* new_val = malloc(sizeof(element)*current_entry.length);
+	for (int element = 0; element < current_entry.length; element++) {
+		new_val[element] = current_entry.values[current_entry.length - element - 1];
+	}
+	free(snapshots[snapshot_number].entries[mem_index].values);
+	snapshots[snapshot_number].entries[mem_index].values = new_val;
+	printf("ok\n\n");
 }
 
 void command_uniq(char* key) {
@@ -468,20 +488,68 @@ void command_sort(char* key) {
 	//
 }
 
-void command_forward(char* key) {
-	//
-}
-
-void command_backward(char* key) {
-	//
-}
-
-int command_type(char* key) {// +++ check all elements in entry...
-	if (key[0] >= '0' && key[0] <= '9') {
-		return 0;
+void recurse_forward(entry current_entry) {
+	if (current_entry.forward_size == 0) {
+		return;
 	}
-	return 1;
+	for (int forw_index = 0; forw_index < current_entry.forward_size; forw_index++) {
+		printf("%s", current_entry.forward[forw_index]->key);
+		if (!(forw_index == current_entry.forward_size - 1 && current_entry.forward[forw_index]->forward_size == 0)) {
+			printf(", ");
+		}
+		recurse_forward(*current_entry.forward[forw_index]);
+	}
 }
+
+void command_forward(char* key, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(key, snapshots, snapshot_number);
+	if (current_entry.length == -1) {
+		printf("no such entry\n\n");
+		return;
+	}
+	if (current_entry.forward_size == 0) {
+		printf("nil\n\n");
+		return;
+	}
+	recurse_forward(current_entry);
+	printf("\n\n");
+}
+
+// void recurse_backward(entry current_entry) {
+// 	if (current_entry.backward_size == 0) {
+// 		return;
+// 	}
+// 	for (int back_index = 0; back_index < current_entry.backward_size; back_index++) {
+// 		printf("%s", current_entry.backward[back_index]->key);
+// 		if (!(back_index == current_entry.backward_size - 1 && current_entry.backward[back_index]->backward_size == 0)) {
+// 			printf(", ");
+// 		}
+// 		recurse_backward(*current_entry.backward[back_index]);
+// 	}
+// }
+//
+// void command_backward(char* key, snapshot* snapshots, int snapshot_number) {
+// 	entry current_entry = get_entry(key, snapshots, snapshot_number);
+// 	printf("%s", current_entry.backward[0]->key);
+//
+// 	if (current_entry.length == -1) {
+// 		printf("no such entry\n\n");
+// 		return;
+// 	}
+// 	if (current_entry.backward_size == 0) {
+// 		printf("nil\n\n");
+// 		return;
+// 	}
+// 	recurse_backward(current_entry);
+// 	printf("\n\n");
+// }
+//
+// int command_type(char* key) {// +++ check all elements in entry...
+// 	if (key[0] >= '0' && key[0] <= '9') {
+// 		return 0;
+// 	}
+// 	return 1;
+// }
 
 int main(void) {
 
@@ -565,15 +633,15 @@ int main(void) {
 		} else if (strcasecmp("LEN", arg) == 0) {
 			command_len(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("REV", arg) == 0) {
-			command_rev(arg_array[1]);
+			command_rev(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("UNIQ", arg) == 0) {
 			command_uniq(arg_array[1]);
 		} else if (strcasecmp("SORT", arg) == 0) {
 			command_sort(arg_array[1]);
 		} else if (strcasecmp("FORWARD", arg) == 0) {
-			command_forward(arg_array[1]);
+			command_forward(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("BACKWARD", arg) == 0) {
-			command_backward(arg_array[1]);
+			command_backward(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("TYPE", arg) == 0) {
 			if (command_type(arg_array[1])) {
 				printf("GENERAL\n");
