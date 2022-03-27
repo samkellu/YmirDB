@@ -276,10 +276,6 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	printf("ok\n\n");
 }
 
-void command_push(char** array) {
-	//
-}
-
 int value_checks(char** array, int array_length, entry current_entry) { //+++ not necessary??
 	if (current_entry.length == -1) {
 		printf("no such key\n\n");
@@ -294,8 +290,61 @@ int value_checks(char** array, int array_length, entry current_entry) { //+++ no
 	return 0;
 }
 
+void command_push(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
+	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
+	if (current_entry.length == -1) {
+		printf("no such entry\n\n");
+		return;
+	}
+	if (value_checks(array, array_length, current_entry)) {
+		return;
+	}
+	int mem_index;
+	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry.key) == 0) {
+			mem_index = entry_index;
+			break;
+		}
+	}
+	current_entry.values = realloc(current_entry.values, (current_entry.length + array_length - 2) * sizeof(element));
+	for (int original_elem = 0; original_elem < current_entry.length; original_elem++) {
+		current_entry.values[array_length - 2 + original_elem] = current_entry.values[original_elem];
+	}
+	for (int arg = 0; arg < array_length - 2; arg++) {
+		element new_element;
+		if (array[array_length - arg - 2][0] >= '0' && array[array_length - arg - 1][0] <= '9') {
+			new_element.type = INTEGER;
+			new_element.value = (int)strtol(array[array_length - arg - 1], NULL, 10);
+			memcpy(&current_entry.values[arg], &new_element, sizeof(element));
+		} else {
+			entry test_entry = get_entry(array[array_length - arg - 2], snapshots, snapshot_number);
+			// test_entry.backward_size++;
+			// test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
+			// entry* test_entry_ptr = &current_entry;
+			// memcpy(test_entry.backward[0], test_entry_ptr, sizeof(entry)); +++ fix backwards
+
+			current_entry.forward_size++;
+			current_entry.forward = realloc(current_entry.forward, current_entry.forward_size * sizeof(entry*));
+			new_element.type = ENTRY;
+			entry* heaped_entry = malloc(sizeof(entry));
+			memcpy(heaped_entry, &test_entry, sizeof(entry));
+			new_element.entry = heaped_entry;
+			current_entry.forward[current_entry.forward_size-1] = heaped_entry;
+			memcpy(&current_entry.values[arg], &new_element, sizeof(element));
+		}
+	}
+	current_entry.length += array_length - 2;
+	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
+	printf("ok\n\n");
+}
+
+
 void command_append(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(array[1], snapshots, snapshot_number);
+	if (current_entry.length == -1) {
+		printf("no such entry\n\n");
+		return;
+	}
 	if (value_checks(array, array_length, current_entry)) {
 		return;
 	}
@@ -607,7 +656,7 @@ int main(void) {
 		} else if (strcasecmp("SET", arg) == 0) {
 			command_set(arg_array, array_length, snapshots, snapshot_number);
 		} else if (strcasecmp("PUSH", arg) == 0) {
-			command_push(arg_array);
+			command_push(arg_array, array_length, snapshots, snapshot_number);
 		} else if (strcasecmp("APPEND", arg) == 0) {
 			command_append(arg_array, array_length, snapshots, snapshot_number);
 		} else if (strcasecmp("PICK", arg) == 0) {
