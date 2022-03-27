@@ -385,6 +385,7 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 }
 
 void command_pick(char* key, int index, snapshot* snapshots, int snapshot_number) {
+	index--;
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length == -1) {
 		printf("no such entry\n\n");
