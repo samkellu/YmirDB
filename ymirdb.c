@@ -145,20 +145,20 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 	if (current_entry != NULL) {
 		int del_found = 0;
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
-			// int element_del_found = 0;
-			// for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index]->length; element_index++) {
-			// 	element el = snapshots[snapshot_number].entries[entry_index].values[element_index];
-			// 	if (el.type == ENTRY && strcmp(el.entry->key, current_entry->key) == 0) {
-			// 		element_del_found = 1;
-			// 	}
-			// 	if (element_del_found) {
-			// 		snapshots[snapshot_number].entries[entry_index].values[element_index] = snapshots[snapshot_number].entries[entry_index].values[element_index+1];
-			// 	}
-			// }
-			// if (element_del_found) {
-			// 	snapshots[snapshot_number].entries[entry_index]->length--;
-			// 	snapshots[snapshot_number].entries[entry_index].values = realloc(snapshots[snapshot_number].entries[entry_index].values, snapshots[snapshot_number].entries[entry_index]->length*sizeof(element));
-			// }
+			int element_del_found = 0;
+			for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index]->length; element_index++) {
+				element el = snapshots[snapshot_number].entries[entry_index].values[element_index];
+				if (el.type == ENTRY && strcmp(el.entry->key, current_entry->key) == 0) {
+					element_del_found = 1;
+				}
+				if (element_del_found) {
+					snapshots[snapshot_number].entries[entry_index].values[element_index] = snapshots[snapshot_number].entries[entry_index].values[element_index+1];
+				}
+			}
+			if (element_del_found) {
+				snapshots[snapshot_number].entries[entry_index]->length--;
+				snapshots[snapshot_number].entries[entry_index].values = realloc(snapshots[snapshot_number].entries[entry_index].values, snapshots[snapshot_number].entries[entry_index]->length*sizeof(element));
+			}
 			if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry->key) == 0) {
 				del_found = 1;
 			}
