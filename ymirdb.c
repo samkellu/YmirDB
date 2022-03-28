@@ -712,16 +712,16 @@ void command_forward(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("\n\n");
 }
 //+++ fix these
-void recurse_backward(entry current_entry) {
+void recurse_backward(entry current_entry, entry end) {
 	if (current_entry.backward_size == 0) {
 		return;
 	}
-	for (int back_index = 0; back_index < current_entry.backward_size; back_index++) {
+	for (int back_index = current_entry.backward_size - 1; back_index >= 0; back_index--) {
+		recurse_backward(*current_entry.backward[back_index], end);
 		printf("%s", current_entry.backward[back_index]->key);
-		if (!(back_index == current_entry.backward_size - 1 && current_entry.backward[back_index]->backward_size == 0)) {
+		if (!(back_index == 0 && strcmp(current_entry.key, end.key) == 0)) {
 			printf(", ");
 		}
-		recurse_backward(*current_entry.backward[back_index]);
 	}
 }
 
@@ -735,7 +735,7 @@ void command_backward(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("nil\n\n");
 		return;
 	}
-	recurse_backward(current_entry);
+	recurse_backward(current_entry, current_entry);
 	printf("\n\n");
 }
 
