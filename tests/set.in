@@ -1,7 +1,10 @@
-set a 123
-list entries
-list keys
-set b 22 a
-list entries
-list keys
+set a a
+set a b
+set a
+get a
+set a 123 33
+get a
+set b a 22
+get b
+get a
 bye

@@ -1,0 +1,6 @@
+get a
+set a 123 22 44
+get a
+set b 12 a 44
+get a
+bye

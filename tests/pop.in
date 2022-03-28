@@ -1,0 +1,15 @@
+pop a
+set a
+pop a
+set b 12
+set a 123 44 b
+get a
+pop a
+get a
+pop a
+get a
+pop a
+get a
+pop a
+get a
+get b

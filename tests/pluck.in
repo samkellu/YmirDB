@@ -1,0 +1,11 @@
+pluck a 1
+set a
+pluck a
+set a 123 22
+pluck a 5
+get a
+set b a 22 45 56
+pluck b 1
+get b
+get a
+bye

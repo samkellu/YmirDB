@@ -1,0 +1,8 @@
+list entries
+list keys
+set a 123 123 22 33
+set b a 22 11 44
+set c a b 22 11
+list entries
+list keys
+bye

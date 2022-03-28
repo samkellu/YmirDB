@@ -1,0 +1,7 @@
+pick a 1
+set a 123 44 55
+pick a 5
+pick a 1
+set b a 23
+pick b 1
+bye

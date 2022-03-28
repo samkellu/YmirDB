@@ -1,0 +1,8 @@
+set a 123 33 554
+set b 11 a 46 22
+get a
+push b
+set c 123 334 b
+append a 44 22 c
+get a
+bye

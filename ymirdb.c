@@ -477,7 +477,12 @@ int recursive_min(entry current_entry, int min) {
 void command_min(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
-		printf("%d\n\n", recursive_min(current_entry, INT_MAX));
+		int min = recursive_min(current_entry, INT_MAX);
+		if (min == INT_MAX) {
+			printf("no integer values\n\n");
+		} else {
+			printf("%d\n\n", min);
+		}
 		return;
 	}
 	printf("No such entry\n\n");
@@ -499,7 +504,12 @@ int recursive_max(entry current_entry, int max) {
 void command_max(char* key, snapshot* snapshots, int snapshot_number) {
 	entry current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry.length != -1) {
-		printf("%d\n\n", recursive_max(current_entry, INT_MIN));
+		int max = recursive_max(current_entry, INT_MIN);
+		if (max == INT_MIN) {
+			printf("no integer values\n\n");
+		} else {
+			printf("%d\n\n", max);
+		}
 		return;
 	}
 	printf("No such entry\n\n");
@@ -531,7 +541,7 @@ void command_len(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("%ld\n", current_entry.length);
 		return;
 	}
-	printf("No such entry\n");
+	printf("No such entry\n\n");
 }
 
 void command_rev(char* key, snapshot* snapshots, int snapshot_number) {
@@ -612,29 +622,19 @@ void command_sort(char* key, snapshot* snapshots, int snapshot_number) {
 		}
 	}
 
-	element* new_val = malloc(sizeof(element) * current_entry.length);
-	int counter = 0;
-	for (int element = 0; element < current_entry.length; element++) {
-		if (current_entry.values[element].type == INTEGER) {
-		} else {
-			printf("simple entry only\n\n");
-			free(new_val);
-			return;
+	int element, cmp_value, prev_element;
+	for (element = 1; element < current_entry.length; element++)
+	{
+		cmp_value = current_entry.values[element].value;
+		prev_element = element - 1;
+
+		while (prev_element >= 0 && current_entry.values[prev_element].value > cmp_value)
+		{
+			current_entry.values[prev_element + 1].value = current_entry.values[prev_element].value;
+			prev_element = prev_element - 1;
 		}
-		for (int prev_element = 0; prev_element < element; prev_element++) {
-			if (current_entry.values[element].value >= current_entry.values[prev_element].value) {
-				new_val[element] = current_entry.values[element];
-				break;
-			}
-			new_val[element + 1] = new_val[element];
-		}
+	current_entry.values[prev_element + 1].value = cmp_value;
 	}
-	printf("%d", new_val[0].value);
-	new_val = realloc(new_val, sizeof(element) * (counter));
-	current_entry.values = realloc(current_entry.values, sizeof(element) * (counter));
-	memcpy(current_entry.values, new_val, sizeof(element) * (counter));
-	free(new_val);
-	current_entry.length = counter;
 	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 	printf("ok\n\n");
 }
