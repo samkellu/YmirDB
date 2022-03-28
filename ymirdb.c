@@ -379,6 +379,13 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
 		} else {
 			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
+			int mem_test_index = -1;
+			for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+				if (strcmp(snapshots[snapshot_number].entries[entry_index].key, test_entry.key) == 0) {
+					mem_test_index = entry_index;
+					break;
+				}
+			}
 			test_entry.backward_size++;
 			test_entry.backward = realloc(test_entry.backward, sizeof(entry*)*test_entry.backward_size);
 			entry* heaped_test_entry = malloc(sizeof(entry));
