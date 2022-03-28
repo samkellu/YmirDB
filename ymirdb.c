@@ -146,7 +146,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 		int del_found = 0;
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
 			int element_del_found = 0;
-			for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index]->length; element_index++) {
+			for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index].length; element_index++) {
 				element el = snapshots[snapshot_number].entries[entry_index].values[element_index];
 				if (el.type == ENTRY && strcmp(el.entry->key, current_entry->key) == 0) {
 					element_del_found = 1;
@@ -156,8 +156,8 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 				}
 			}
 			if (element_del_found) {
-				snapshots[snapshot_number].entries[entry_index]->length--;
-				snapshots[snapshot_number].entries[entry_index].values = realloc(snapshots[snapshot_number].entries[entry_index].values, snapshots[snapshot_number].entries[entry_index]->length*sizeof(element));
+				snapshots[snapshot_number].entries[entry_index].length--;
+				snapshots[snapshot_number].entries[entry_index].values = realloc(snapshots[snapshot_number].entries[entry_index].values, snapshots[snapshot_number].entries[entry_index].length*sizeof(element));
 			}
 			if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry->key) == 0) {
 				del_found = 1;
@@ -166,9 +166,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 				snapshots[snapshot_number].entries[entry_index] = snapshots[snapshot_number].entries[entry_index+1];
 			}
 		}
-		snapshots[snapshot_number].num_entries--;
-		entry* new_entries = realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries * sizeof(entry));
-		snapshots[snapshot_number].entries = new_entries;
+		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, --snapshots[snapshot_number].num_entries * sizeof(entry));
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries - 1; entry_index++) { //Case where the element is the last in the array is covered as default
 			for (int element_index = 0; element_index < snapshots[snapshot_number].entries[entry_index].length; element_index++) {
 				int del_found = 0;
@@ -189,14 +187,14 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 				}
 			}
 		}
-		for (int current_element = 0; current_element < current_entry->length; current_element++) {
-			if (current_entry->values[current_element].type == ENTRY) {
-				free(current_entry->values[current_element].entry->backward);
-				free(current_entry->values[current_element].entry->forward);
-				free(current_entry->values[current_element].entry);
-			}
-		}
-		free(current_entry->values);
+		// for (int current_element = 0; current_element < current_entry->length; current_element++) {
+		// 	if (current_entry->values[current_element].type == ENTRY) {
+		// 		free(current_entry->values[current_element].entry->backward);
+		// 		free(current_entry->values[current_element].entry->forward);
+		// 		free(current_entry->values[current_element].entry);
+		// 	}
+		// }
+		// free(current_entry->values);
 		if (snapshots[snapshot_number].entries == NULL && snapshots[snapshot_number].num_entries != 0) {
 			perror("Realloc failed");
 			command_bye(snapshots);
