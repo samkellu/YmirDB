@@ -689,9 +689,9 @@ void recurse_forward(entry current_entry) {
 	if (current_entry.forward_size == 0) {
 		return;
 	}
-	for (int forw_index = 0; forw_index < current_entry.forward_size; forw_index++) {
+	for (int forw_index = current_entry.forward_size - 1; forw_index >= 0; forw_index--) {
 		printf("%s", current_entry.forward[forw_index]->key);
-		if (!(forw_index == current_entry.forward_size - 1 && current_entry.forward[forw_index]->forward_size == 0)) {
+		if (!(forw_index == 0 && current_entry.forward[forw_index]->forward_size == 0)) {
 			printf(", ");
 		}
 		recurse_forward(*current_entry.forward[forw_index]);
