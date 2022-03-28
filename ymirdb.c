@@ -375,13 +375,12 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 	current_entry.values = realloc(current_entry.values, (current_entry.length + array_length - 2) * sizeof(element));
 	for (int arg = current_entry.length; arg < current_entry.length + array_length - 2; arg++) {
 		element new_element;
-		printf("%d", arg);
-		if (array[arg-current_entry.length][0] >= '0' && array[arg-current_entry.length][0] <= '9') {
+		if (array[arg-current_entry.length + 2][0] >= '0' && array[arg-current_entry.length + 2][0] <= '9') {
 			new_element.type = INTEGER;
-			new_element.value = (int)strtol(array[arg-current_entry.length], NULL, 10);
-			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
+			new_element.value = (int)strtol(array[arg-current_entry.length + 2], NULL, 10);
+			memcpy(&current_entry.values[arg], &new_element, sizeof(element));
 		} else {
-			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
+			entry test_entry = get_entry(array[arg-current_entry.length + 2], snapshots, snapshot_number);
 			int mem_test_index = -1;
 			for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 				if (strcmp(snapshots[snapshot_number].entries[entry_index].key, test_entry.key) == 0) {
@@ -406,7 +405,7 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
 		}
 	}
-	current_entry.length += array_length;
+	current_entry.length += array_length - 2;
 	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 	printf("ok\n\n");
 }
