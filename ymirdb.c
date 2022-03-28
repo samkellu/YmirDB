@@ -685,16 +685,16 @@ void command_sort(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("ok\n\n");
 }
 
-void recurse_forward(entry current_entry) {
+void recurse_forward(entry current_entry, entry end) {
 	if (current_entry.forward_size == 0) {
 		return;
 	}
 	for (int forw_index = current_entry.forward_size - 1; forw_index >= 0; forw_index--) {
+		recurse_forward(*current_entry.forward[forw_index], end);
 		printf("%s", current_entry.forward[forw_index]->key);
-		if (!(forw_index == 0 && current_entry.forward[forw_index]->forward_size == 0)) {
+		if (!(forw_index == 0 && strcmp(current_entry.key, end.key) == 0)) {
 			printf(", ");
 		}
-		recurse_forward(*current_entry.forward[forw_index]);
 	}
 }
 
@@ -708,7 +708,7 @@ void command_forward(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("nil\n\n");
 		return;
 	}
-	recurse_forward(current_entry);
+	recurse_forward(current_entry, current_entry);
 	printf("\n\n");
 }
 //+++ fix these
