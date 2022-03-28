@@ -370,12 +370,15 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 			break;
 		}
 	}
+
+	////// +++ FIX THIS SHIT YOU SPOON
 	current_entry.values = realloc(current_entry.values, (current_entry.length + array_length - 2) * sizeof(element));
-	for (int arg = current_entry.length + 1; arg < current_entry.length + array_length - 1; arg++) {
+	for (int arg = current_entry.length; arg < current_entry.length + array_length - 2; arg++) {
 		element new_element;
-		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
+		printf("%d", arg);
+		if (array[arg-current_entry.length][0] >= '0' && array[arg-current_entry.length][0] <= '9') {
 			new_element.type = INTEGER;
-			new_element.value = (int)strtol(array[arg], NULL, 10);
+			new_element.value = (int)strtol(array[arg-current_entry.length], NULL, 10);
 			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
 		} else {
 			entry test_entry = get_entry(array[arg], snapshots, snapshot_number);
@@ -403,7 +406,7 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 			memcpy(&current_entry.values[arg - 1], &new_element, sizeof(element));
 		}
 	}
-	current_entry.length += array_length - 2;
+	current_entry.length += array_length;
 	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 	printf("ok\n\n");
 }
