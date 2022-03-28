@@ -42,6 +42,8 @@ entry get_entry(char* key, snapshot* snapshots, int snapshot_number) {
 
 void command_bye(snapshot* snapshots) {
 	for (int current_snapshot = 0; current_snapshot < sizeof(snapshots)/sizeof(snapshot*); current_snapshot++) {
+		free(snapshots[current_snapshot].prev);
+		free(snapshots[current_snapshot].next);
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
 			for (int current_element = 0; current_element < snapshots[current_snapshot].entries[current_entry].length; current_element++) {
 				if (snapshots[current_snapshot].entries[current_entry].values[current_element].type == ENTRY) {
@@ -112,6 +114,12 @@ void command_list_snapshots(snapshot *snapshots, int num_snapshots) {
 		printf("no snapshots\n\n");
 		return;
 	}
+	snapshot current_snapshot = snapshots[0];
+	while (current_snapshot.next != NULL) {
+		printf("%d", current_snapshot.id);
+		current_snapshot = *current_snapshot.next;
+	}
+	printf("\n\n");
 }
 
 void command_get(char* key, snapshot* snapshots, int snapshot_number) {// +++ rework to return the entry, maybe a helper func?
@@ -465,8 +473,27 @@ void command_checkout(char* id) {
 	//
 }
 
-void command_snapshot() {
-	//
+int command_snapshot(snapshot* snapshots, int snapshot_number) {
+	snapshot new_snapshot;
+	new_snapshot.id = snapshot_number+1;
+	new_snapshot.next = NULL;
+	new_snapshot.prev = malloc(sizeof(snapshot));
+	new_snapshot.entries = malloc(sizeof(entry) * snapshots[snapshot_number].num_entries);
+	new_snapshot.prev = &snapshots[snapshot_number];
+	memcpy(&new_snapshot, &snapshots[snapshot_number], sizeof(snapshot));
+	memcpy(new_snapshot.entries, snapshots[snapshot_number].entries, sizeof(entry) * new_snapshot.num_entries);
+	for (int entry_index = 0; entry_index < new_snapshot.num_entries; entry_index++) {
+		memcpy(&new_snapshot.entries[entry_index], &new_snapshot.entries[entry_index], sizeof(entry));
+		for (int element_index = 0; element_index < new_snapshot.entries[entry_index].length; element_index++) {
+			memcpy(&new_snapshot.entries[entry_index].values[element_index], &new_snapshot.entries[entry_index].values[element_index], sizeof(element));
+			if (new_snapshot.entries[entry_index].values[element_index].type == ENTRY) {
+				memcpy(new_snapshot.entries[entry_index].values[element_index].entry, new_snapshot.entries[entry_index].values[element_index].entry, sizeof(entry*));
+			}
+		}
+	}
+	snapshots = realloc(snapshots, sizeof(snapshot)*(snapshot_number + 1));
+	memcpy(&snapshots[snapshot_number], &new_snapshot, sizeof(snapshot));
+	return snapshot_number + 1;
 }
 
 int recursive_min(entry current_entry, int min) {
@@ -783,7 +810,7 @@ int main(void) {
 		} else if (strcasecmp("CHECKOUT", arg) == 0) {
 			command_checkout(arg_array[1]);
 		} else if (strcasecmp("SNAPSHOT", arg) == 0) {
-			command_snapshot();
+			snapshot_number = command_snapshot(snapshots, snapshot_number);
 		} else if (strcasecmp("MIN", arg) == 0) {
 			command_min(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("MAX", arg) == 0) {
