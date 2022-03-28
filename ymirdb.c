@@ -487,7 +487,7 @@ int command_snapshot(snapshot* snapshots, int snapshot_number) {
 		for (int element_index = 0; element_index < new_snapshot.entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot.entries[entry_index].values[element_index], &new_snapshot.entries[entry_index].values[element_index], sizeof(element));
 			if (new_snapshot.entries[entry_index].values[element_index].type == ENTRY) {
-				memcpy(new_snapshot.entries[entry_index].values[element_index].entry, new_snapshot.entries[entry_index].values[element_index].entry, sizeof(entry*));
+				memcpy(new_snapshot.entries[entry_index].values[element_index].entry, new_snapshot.entries[entry_index].values[element_index].entry, sizeof(entry));
 			}
 		}
 	}
