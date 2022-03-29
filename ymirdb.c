@@ -102,6 +102,7 @@ void command_list_entries(snapshot* snapshots, int snapshot_number) {
 }
 
 void command_list_snapshots(snapshot *snapshots, int num_snapshots) {
+	printf("%d", num_snapshots);
 	if (num_snapshots == 0) {
 		printf("no snapshots\n\n");
 		return;
@@ -711,7 +712,7 @@ int main(void) {
 				} else if (strcasecmp("ENTRIES", arg) == 0) {
 					command_list_entries(snapshots, snapshot_number);
 				} else if (strcasecmp("SNAPSHOTS", arg) == 0) {
-					command_list_snapshots(snapshots, snapshots[snapshot_number].num_entries);
+					command_list_snapshots(snapshots, snapshot_number);
 				} else {
 					continue;
 				}
