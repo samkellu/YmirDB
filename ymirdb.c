@@ -237,12 +237,6 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	}
 	current_entry->values = realloc(current_entry->values, sizeof(element) * (array_length - 2));
 	current_entry->length = array_length-2;
-	free(current_entry->forward);
-	free(current_entry->backward);
-	current_entry->forward_size = 0;
-	current_entry->backward_size = 0;
-	current_entry->forward = NULL;
-	current_entry->backward = NULL;
 
 	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 		entry* test_entry = get_entry(snapshots[snapshot_number].entries[entry_index].key, snapshots, snapshot_number);
@@ -277,6 +271,14 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 			test_entry->backward = realloc(test_entry->backward, sizeof(entry) * test_entry->backward_size);
 		}
 	}
+	
+	free(current_entry->forward);
+	free(current_entry->backward);
+	current_entry->forward_size = 0;
+	current_entry->backward_size = 0;
+	current_entry->forward = NULL;
+	current_entry->backward = NULL;
+
 
 	memcpy(current_entry->key, array[1], MAX_KEY);
 	for (int arg = 2; arg < array_length; arg++) {
