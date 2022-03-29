@@ -151,22 +151,6 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 			entry* test_entry = get_entry(snapshots[snapshot_number].entries[entry_index].key, snapshots);
 			int del_found = 0;
-			// for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
-			// 	if (strcmp(test_entry->forward[forward_index].key, current_entry->key) == 0) {
-			// 		del_found = 1;
-			// 	}
-			// 	if (del_found) {
-			// 		printf("gay");
-			// 		if (forward_index != test_entry->forward_size - 1) {
-			// 			test_entry->forward[forward_index] = test_entry->forward[forward_index+1];
-			// 		}
-			// 	}
-			// }
-			// if (del_found) {
-			// 	test_entry->forward_size--;
-			// 	test_entry->forward = realloc(test_entry->forward, sizeof(entry) * test_entry->forward_size);
-			// }
-			// del_found = 0;
 			for (int backward_index = 0; backward_index < test_entry->backward_size; backward_index++) {
 				if (strcmp(test_entry->backward[backward_index].key, current_entry->key) == 0) {
 					del_found = 1;
@@ -420,6 +404,8 @@ void command_pick(char* key, int index, snapshot* snapshots) {
 }
 
 //update forward and backward +++
+//validity +++
+//del quiet?? +++
 void command_pluck(char* key, int index, snapshot* snapshots) {
 	entry* current_entry = get_entry(key, snapshots);
 	index--;
@@ -509,16 +495,18 @@ snapshot* command_snapshot(snapshot* snapshots) {
 	snapshot* new_snapshot = &snapshots[total_snapshots];
 	memcpy(new_snapshot, &snapshots[snapshot_number], sizeof(snapshot));
 	new_snapshot->num_entries = snapshots[snapshot_number].num_entries;
-	new_snapshot->entries = malloc(sizeof(entry) * new_snapshot->num_entries);
+	new_snapshot->entries = (entry*)malloc(sizeof(entry) * new_snapshot->num_entries);
+	memcpy(new_snapshot->entries, snapshots[snapshot_number].entries, sizeof(entry) * new_snapshot->num_entries);
 	for (int entry_index = 0; entry_index < new_snapshot->num_entries; entry_index++) {
 		memcpy(&new_snapshot->entries[entry_index], &snapshots[snapshot_number].entries[entry_index], sizeof(entry));
+		new_snapshot->entries[entry_index].values = (element*)malloc(sizeof(element) * new_snapshot->entries[entry_index].length);
+		memcpy(new_snapshot->entries[entry_index].values, &snapshots[snapshot_number].entries[entry_index].values, sizeof(element) * new_snapshot->entries[entry_index].length);
 		for (int element_index = 0; element_index < new_snapshot->entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &snapshots[snapshot_number].entries[entry_index].values[element_index], sizeof(element));
 			if (new_snapshot->entries[entry_index].values[element_index].type == ENTRY) {
 				memcpy(new_snapshot->entries[entry_index].values[element_index].entry, snapshots[snapshot_number].entries[entry_index].values[element_index].entry, sizeof(entry));
 			}
 		}
-		memcpy(new_snapshot->entries[entry_index].values, snapshots[snapshot_number].entries[entry_index].values, sizeof(entry) * new_snapshot->entries[entry_index].length);
 	}
 	snapshot_number = total_snapshots;
 	new_snapshot->id = snapshot_number;
