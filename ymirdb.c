@@ -615,20 +615,11 @@ void command_sort(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("no such key\n\n");
 		return;
 	}
-	int mem_index = -1;
-	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
-		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry->key) == 0) {
-			mem_index = entry_index;
-			break;
-		}
-	}
-
 	int element, cmp_value, prev_element;
 	for (element = 1; element < current_entry->length; element++)
 	{
 		cmp_value = current_entry->values[element].value;
 		prev_element = element - 1;
-
 		while (prev_element >= 0 && current_entry->values[prev_element].value > cmp_value)
 		{
 			current_entry->values[prev_element + 1].value = current_entry->values[prev_element].value;
@@ -636,7 +627,6 @@ void command_sort(char* key, snapshot* snapshots, int snapshot_number) {
 		}
 	current_entry->values[prev_element + 1].value = cmp_value;
 	}
-	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 	printf("ok\n\n");
 }
 
