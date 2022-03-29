@@ -102,15 +102,12 @@ void command_list_entries(snapshot* snapshots, int snapshot_number) {
 }
 
 void command_list_snapshots(snapshot *snapshots, int num_snapshots) {
-	printf("%d", num_snapshots);
 	if (num_snapshots == 0) {
 		printf("no snapshots\n\n");
 		return;
 	}
-	snapshot current_snapshot = snapshots[0];
-	while (current_snapshot.next != NULL) {
-		printf("%d", current_snapshot.id);
-		current_snapshot = *current_snapshot.next;
+	for (int snap_index = 0; snap_index < num_snapshots; snap_index++) {
+		printf("%d", snapshots[snap_index].id);
 	}
 	printf("\n\n");
 }
@@ -341,8 +338,6 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 		return;
 	}
 
-
-	////// +++ FIX THIS SHIT YOU SPOON
 	int old_len = current_entry->length;
 	current_entry->length += array_length - 2;
 	current_entry->values = realloc(current_entry->values, current_entry->length * sizeof(element));
@@ -439,27 +434,29 @@ void command_checkout(char* id) {
 	//
 }
 
-int command_snapshot(snapshot* snapshots, int snapshot_number) {
-	snapshot new_snapshot;
+snapshot* command_snapshot(snapshot* snapshots, int snapshot_number, int total_snapshots) {
+	snapshots = realloc(snapshots, sizeof(snapshot)*(total_snapshots + 1));
+	snapshot new_snapshot = snapshots[total_snapshots];
+	memcpy(&new_snapshot, &snapshots[snapshot_number], sizeof(snapshot));
 	new_snapshot.id = snapshot_number+1;
 	new_snapshot.next = NULL;
-	new_snapshot.prev = malloc(sizeof(snapshot));
-	new_snapshot.entries = malloc(sizeof(entry) * snapshots[snapshot_number].num_entries);
 	new_snapshot.prev = &snapshots[snapshot_number];
-	memcpy(&new_snapshot, &snapshots[snapshot_number], sizeof(snapshot));
-	memcpy(new_snapshot.entries, snapshots[snapshot_number].entries, sizeof(entry) * new_snapshot.num_entries);
+	new_snapshot.num_entries = snapshots[snapshot_number].num_entries;
+	new_snapshot.entries = malloc(sizeof(entry) * new_snapshot.num_entries);
 	for (int entry_index = 0; entry_index < new_snapshot.num_entries; entry_index++) {
-		memcpy(&new_snapshot.entries[entry_index], &new_snapshot.entries[entry_index], sizeof(entry));
+		memcpy(&new_snapshot.entries[entry_index], &snapshots[snapshot_number].entries[entry_index], sizeof(entry));
 		for (int element_index = 0; element_index < new_snapshot.entries[entry_index].length; element_index++) {
-			memcpy(&new_snapshot.entries[entry_index].values[element_index], &new_snapshot.entries[entry_index].values[element_index], sizeof(element));
+			memcpy(&new_snapshot.entries[entry_index].values[element_index], &snapshots[snapshot_number].entries[entry_index].values[element_index], sizeof(element));
 			if (new_snapshot.entries[entry_index].values[element_index].type == ENTRY) {
-				memcpy(new_snapshot.entries[entry_index].values[element_index].entry, new_snapshot.entries[entry_index].values[element_index].entry, sizeof(entry));
+				memcpy(new_snapshot.entries[entry_index].values[element_index].entry, snapshots[snapshot_number].entries[entry_index].values[element_index].entry, sizeof(entry));
 			}
 		}
+		memcpy(new_snapshot.entries[entry_index].values, snapshots[snapshot_number].entries[entry_index].values, sizeof(entry) * new_snapshot.entries[entry_index].length);
+
 	}
-	snapshots = realloc(snapshots, sizeof(snapshot)*(snapshot_number + 1));
-	memcpy(&snapshots[snapshot_number], &new_snapshot, sizeof(snapshot));
-	return snapshot_number + 1;
+	printf("saved as snapshot %d\n\n", ++total_snapshots);
+	snapshot_number = total_snapshots;
+	return snapshots;
 }
 
 int recursive_min(entry* current_entry, int min) {
@@ -676,10 +673,15 @@ int main(void) {
 	char *token,*input;
 
 	int snapshot_number = 0;
-	snapshot *snapshots = (snapshot*) malloc(sizeof(snapshot));
-	snapshot current_snapshot = {snapshot_number, NULL, 0, NULL, NULL};
-	snapshots[0] = current_snapshot;
-	snapshots[0].num_entries = 0;
+	int total_snapshots = 0;
+	snapshot* snapshots = (snapshot*) malloc(sizeof(snapshot));
+	snapshot current_snapshot = snapshots[0];
+	memset(&snapshots[0], 0, sizeof(snapshot));
+	current_snapshot.id = snapshot_number + 1;
+	current_snapshot.entries = NULL;
+	current_snapshot.num_entries = 0;
+	current_snapshot.next = NULL;
+	current_snapshot.prev = NULL;
 	while (true) {
 		printf("> ");
 
@@ -712,7 +714,9 @@ int main(void) {
 				} else if (strcasecmp("ENTRIES", arg) == 0) {
 					command_list_entries(snapshots, snapshot_number);
 				} else if (strcasecmp("SNAPSHOTS", arg) == 0) {
-					command_list_snapshots(snapshots, snapshot_number);
+					command_list_snapshots(snapshots, total_snapshots);
+					total_snapshots++;
+					snapshot_number = total_snapshots - 1;
 				} else {
 					continue;
 				}
@@ -741,7 +745,8 @@ int main(void) {
 		} else if (strcasecmp("CHECKOUT", arg) == 0) {
 			command_checkout(arg_array[1]);
 		} else if (strcasecmp("SNAPSHOT", arg) == 0) {
-			snapshot_number = command_snapshot(snapshots, snapshot_number);
+			snapshots = command_snapshot(snapshots, snapshot_number, total_snapshots);
+			total_snapshots++;
 		} else if (strcasecmp("MIN", arg) == 0) {
 			command_min(arg_array[1], snapshots, snapshot_number);
 		} else if (strcasecmp("MAX", arg) == 0) {
