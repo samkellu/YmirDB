@@ -303,6 +303,9 @@ void command_push(char** array, int array_length, snapshot* snapshots, int snaps
 	for (int original_elem = 0; original_elem < old_len; original_elem++) {
 		current_entry->values[current_entry->length - 1 - original_elem] = current_entry->values[old_len - original_elem - 1];
 	}
+	if (old_len == 0) {
+		old_len = current_entry->length;
+	}
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[old_len - (arg - 1)];
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
@@ -323,7 +326,6 @@ void command_push(char** array, int array_length, snapshot* snapshots, int snaps
 	}
 	printf("ok\n\n");
 }
-
 
 void command_append(char** array, int array_length, snapshot* snapshots, int snapshot_number) {
 	for (int arg = 2; arg < array_length; arg++) {
