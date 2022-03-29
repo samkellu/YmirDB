@@ -573,39 +573,20 @@ void command_uniq(char* key, snapshot* snapshots, int snapshot_number) {
 		printf("no such key\n\n");
 		return;
 	}
-	int mem_index = -1;
-	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
-		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry->key) == 0) {
-			mem_index = entry_index;
-			break;
-		}
-	}
-
-	element* new_val = malloc(sizeof(element) * current_entry->length);
-	int counter = 0;
-	int valid = 1;
-	for (int element = 0; element < current_entry->length; element++) {
-		if (current_entry->values[element].type == INTEGER) {
-			if (element != 0 && current_entry->values[element].value == current_entry->values[element - 1].value) {
-				valid = 0;
-			} else {
-				valid = 1;
-			}
-		} else {
+	for (int check_entry = 0; check_entry < current_entry->length; check_entry++) {
+		if (current_entry->values[check_entry].type != INTEGER) {
 			printf("simple entry only\n\n");
-			free(new_val);
 			return;
 		}
-		if (valid) {
-			new_val[counter++] = current_entry->values[element];
+	}
+	int counter = 0;
+	for (int element = 0; element < current_entry->length; element++) {
+		if (!(element != 0 && current_entry->values[element].value == current_entry->values[element - 1].value)) {
+			current_entry->values[counter++] = current_entry->values[element];
 		}
 	}
-	new_val = realloc(new_val, sizeof(element) * (counter));
 	current_entry->values = realloc(current_entry->values, sizeof(element) * (counter));
-	memcpy(current_entry->values, new_val, sizeof(element) * (counter));
-	free(new_val);
 	current_entry->length = counter;
-	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 	printf("ok\n\n");
 }
 
