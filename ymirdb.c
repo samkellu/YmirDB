@@ -17,20 +17,6 @@
 int snapshot_number = 0;
 int total_snapshots = 1;
 
-//
-// We recommend that you design your program to be
-// modular where each function performs a small task
-//
-// e.g.
-//
-// command_bye
-// command_help
-// ...
-// entry_add
-// entry_delete
-// ...
-//
-
 entry* get_entry(char* key, snapshot* snapshots) {
 	for (int entry_num = 0; entry_num < snapshots[snapshot_number].num_entries; entry_num++) {
 		if (strcmp(snapshots[snapshot_number].entries[entry_num].key, key) == 0) {
