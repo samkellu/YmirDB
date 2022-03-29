@@ -237,9 +237,13 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	}
 	current_entry->values = realloc(current_entry->values, sizeof(element) * (array_length - 2));
 	current_entry->length = array_length-2;
+	free(current_entry->forward);
+	free(current_entry->backward);
+	current_entry->forward_size = 0;
+	current_entry->backward_size = 0;
 	current_entry->forward = NULL;
 	current_entry->backward = NULL;
-	
+
 	memcpy(current_entry->key, array[1], MAX_KEY);
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[arg-2];
