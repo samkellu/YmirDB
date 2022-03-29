@@ -304,7 +304,7 @@ void command_push(char** array, int array_length, snapshot* snapshots, int snaps
 		current_entry->values[current_entry->length - 1 - original_elem] = current_entry->values[old_len - original_elem - 1];
 	}
 	for (int arg = 2; arg < array_length; arg++) {
-		element* new_element = &current_entry->values[arg - 2];
+		element* new_element = &current_entry->values[old_len - (arg - 2)];
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
