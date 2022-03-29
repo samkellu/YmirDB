@@ -135,8 +135,6 @@ void command_get(char* key, snapshot* snapshots, int snapshot_number) {// +++ re
 	printf("no such key\n\n");
 }
 
-// int del_quiet(entry* current_entry, snapshot* snapshots, int snapshot_number) {
-
 void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 	entry* current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry != NULL) {
@@ -231,15 +229,14 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	entry* current_entry = get_entry(array[1], snapshots, snapshot_number);
 	if (current_entry == NULL) {
 		snapshots[snapshot_number].num_entries++;
-		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, sizeof(entry)*(snapshots[snapshot_number].num_entries));
-		entry* new_entry = &snapshots[snapshot_number].entries[snapshots[snapshot_number].num_entries-1];
-		memset(new_entry, 0, sizeof(entry));
-		new_entry->forward_size = 0;
-		new_entry->backward_size = 0;
-		new_entry->forward = NULL;
-		new_entry->backward = NULL;
-		new_entry->values = NULL;
-		current_entry = new_entry;
+		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, sizeof(entry) * snapshots[snapshot_number].num_entries);
+		current_entry = &snapshots[snapshot_number].entries[snapshots[snapshot_number].num_entries-1];
+		memset(current_entry, 0, sizeof(entry));
+		current_entry->forward_size = 0;
+		current_entry->backward_size = 0;
+		current_entry->forward = NULL;
+		current_entry->backward = NULL;
+		current_entry->values = NULL;
 	}
 	element *values = malloc(sizeof(element) * (array_length - 2));
 	current_entry->length = array_length-2;
@@ -549,14 +546,7 @@ void command_len(char* key, snapshot* snapshots, int snapshot_number) {
 
 void command_rev(char* key, snapshot* snapshots, int snapshot_number) {
 	entry* current_entry = get_entry(key, snapshots, snapshot_number);
-	int mem_index = -1;
-	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
-		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry->key) == 0) {
-			mem_index = entry_index;
-			break;
-		}
-	}
-	if (mem_index == -1) {
+	if (current_entry == NULL) {
 		printf("no such entry\n\n");
 		return;
 	}
@@ -564,8 +554,8 @@ void command_rev(char* key, snapshot* snapshots, int snapshot_number) {
 	for (int element = 0; element < current_entry->length; element++) {
 		new_val[element] = current_entry->values[current_entry->length - element - 1];
 	}
-	free(snapshots[snapshot_number].entries[mem_index].values);
-	snapshots[snapshot_number].entries[mem_index].values = new_val;
+	free(current_entry->values);
+	current_entry->values = new_val;
 	printf("ok\n\n");
 }
 
@@ -639,7 +629,7 @@ void command_forward(char* key, snapshot* snapshots, int snapshot_number) {
 	recurse_forward(current_entry, current_entry);
 	printf("\n\n");
 }
-//+++ fix these
+
 void recurse_backward(entry* current_entry, entry* end) {
 	if (current_entry->backward_size == 0) {
 		return;
