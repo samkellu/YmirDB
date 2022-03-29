@@ -633,13 +633,13 @@ void recurse_backward(entry* current_entry, entry* end, snapshot* snapshots, int
 	if (current_entry->backward_size == 0) {
 		return;
 	}
-	for (int back_index = current_entry->backward_size - 1; back_index >= 0; back_index--) {
+	for (int back_index = 0; back_index < current_entry->backward_size; back_index++) {
 		entry* back_entry = get_entry(current_entry->backward[back_index].key, snapshots, snapshot_number);
+		recurse_backward(back_entry, end, snapshots, snapshot_number);
 		printf("%s", current_entry->backward[back_index].key);
 		if (!(back_index == 0 && strcmp(current_entry->key, end->key) == 0)) {
 			printf(", ");
 		}
-		recurse_backward(back_entry, end, snapshots, snapshot_number);
 	}
 }
 
