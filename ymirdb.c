@@ -114,7 +114,7 @@ void command_list_snapshots(snapshot *snapshots) {
 		return;
 	}
 	for (int snap_index = 1; snap_index < total_snapshots; snap_index++) {
-		printf("%d", snapshots[snap_index].id);
+		printf("%d ", snapshots[snap_index].id);
 	}
 	printf("\n\n");
 }
@@ -501,12 +501,17 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		memcpy(&new_snapshot->entries[entry_index], &snapshots[snapshot_number].entries[entry_index], sizeof(entry));
 		new_snapshot->entries[entry_index].values = (element*)malloc(sizeof(element) * new_snapshot->entries[entry_index].length);
 		memcpy(new_snapshot->entries[entry_index].values, &snapshots[snapshot_number].entries[entry_index].values, sizeof(element) * new_snapshot->entries[entry_index].length);
+		new_snapshot->entries[entry_index].forward = (entry*)malloc(sizeof(entry) * new_snapshot->entries[entry_index].forward_size);
+		memcpy(new_snapshot->entries[entry_index].forward, snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry) * new_snapshot->entries[entry_index].forward_size);
+		new_snapshot->entries[entry_index].backward = (entry*)malloc(sizeof(entry) * new_snapshot->entries[entry_index].backward_size);
+		memcpy(new_snapshot->entries[entry_index].backward, snapshots[snapshot_number].entries[entry_index].backward, sizeof(entry) * new_snapshot->entries[entry_index].backward_size);
 		for (int element_index = 0; element_index < new_snapshot->entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &snapshots[snapshot_number].entries[entry_index].values[element_index], sizeof(element));
 			if (new_snapshot->entries[entry_index].values[element_index].type == ENTRY) {
 				memcpy(new_snapshot->entries[entry_index].values[element_index].entry, snapshots[snapshot_number].entries[entry_index].values[element_index].entry, sizeof(entry));
 			}
 		}
+
 	}
 	snapshot_number = total_snapshots;
 	new_snapshot->id = snapshot_number;
