@@ -416,6 +416,10 @@ void command_pluck(char* key, int index, snapshot* snapshots, int snapshot_numbe
 
 void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
 	entry* current_entry = get_entry(key, snapshots, snapshot_number);
+	if (current_entry == NULL) {
+		printf("no such key\n\n");
+		return;
+	}
 	if (current_entry->length <= 0) {
 		printf("nil\n\n");
 		return;
