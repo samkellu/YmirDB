@@ -396,9 +396,9 @@ void command_pluck(char* key, int index, snapshot* snapshots, int snapshot_numbe
 		printf("%d\n\n", current_entry->values[index].value);
 	} else {
 		printf("%s\n\n", current_entry->values[index].entry->key);
-		free(current_entry->values[index].entry->values);
-		free(current_entry->values[index].entry->forward);
-		free(current_entry->values[index].entry->backward);
+		// free(current_entry->values[index].entry->values);
+		// free(current_entry->values[index].entry->forward);
+		// free(current_entry->values[index].entry->backward);
 	}
 	for (int element_index = index; element_index < current_entry->length; element_index++) {
 		if (element_index != current_entry->length - 1) {
@@ -536,7 +536,12 @@ void command_sum(char* key, snapshot* snapshots, int snapshot_number) {
 void command_len(char* key, snapshot* snapshots, int snapshot_number) {
 	entry* current_entry = get_entry(key, snapshots, snapshot_number);
 	if (current_entry != NULL) {
-		printf("%ld\n", current_entry->length);
+		int size = 0;
+		for (int forw_entry = 0; forw_entry < current_entry->forward_size; forw_entry++) {
+			size += current_entry->forward[forw_entry]->length;
+		}
+		size += current_entry->length - current_entry->forward_size;
+		printf("%d\n\n", size);
 		return;
 	}
 	printf("No such entry\n\n");
