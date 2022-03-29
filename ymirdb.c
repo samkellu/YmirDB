@@ -629,12 +629,13 @@ void command_forward(char* key, snapshot* snapshots, int snapshot_number) {
 	printf("\n\n");
 }
 
-void recurse_backward(entry* current_entry, entry* end) {
+void recurse_backward(entry* current_entry, entry* end, snapshot* snapshots, int snapshot_number) {
 	if (current_entry->backward_size == 0) {
 		return;
 	}
 	for (int back_index = current_entry->backward_size - 1; back_index >= 0; back_index--) {
-		recurse_backward(&current_entry->backward[back_index], end);
+		entry* back_entry = get_entry(current_entry->backward[back_index].key, snapshots, snapshot_number);
+		recurse_backward(back_entry, end, snapshots, snapshot_number);
 		printf("%s", current_entry->backward[back_index].key);
 		if (!(back_index == 0 && strcmp(current_entry->key, end->key) == 0)) {
 			printf(", ");
@@ -653,7 +654,7 @@ void command_backward(char* key, snapshot* snapshots, int snapshot_number) {
 		return;
 	}
 
-	recurse_backward(current_entry, current_entry);
+	recurse_backward(current_entry, current_entry, snapshots, snapshot_number);
 	printf("\n\n");
 }
 
