@@ -37,18 +37,16 @@ entry* get_entry(char* key, snapshot* snapshots, int snapshot_number) {
 	return NULL;
 }
 
+snapshot* get_snapshot(snapshot* snapshots, int snapshot_number) {
+	return &snapshots[snapshot_number];
+}
+
 void command_bye(snapshot* snapshots) {
 	for (int current_snapshot = 0; current_snapshot < sizeof(snapshots)/sizeof(snapshot*); current_snapshot++) {
 		free(snapshots[current_snapshot].prev);
 		free(snapshots[current_snapshot].next);
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
 			entry* free_entry = get_entry(snapshots[current_snapshot].entries[current_entry].key, snapshots, current_snapshot);
-			// for (int forw_index = 0; forw_index < free_entry->forward_size; forw_index++) {
-			// 	if (free_entry->forward[forw_index] != NULL) {
-			// 		free(free_entry->forward[forw_index]);
-			// 		free_entry->forward[forw_index] = NULL;
-			// 	}
-			// }
 			free(free_entry->backward);
 			free(free_entry->forward);
 			free(free_entry->values);
@@ -140,7 +138,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 			entry* test_entry = get_entry(snapshots[snapshot_number].entries[entry_index].key, snapshots, snapshot_number);
 			int del_found = 0;
 			for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
-				if (test_entry->forward[forward_index] == current_entry) {
+				if (&test_entry->forward[forward_index] == current_entry) {
 					del_found = 1;
 				}
 				if (del_found) {
@@ -151,11 +149,11 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 			}
 			if (del_found) {
 				test_entry->forward_size--;
-				test_entry->forward = realloc(test_entry->forward, sizeof(entry*) * test_entry->forward_size);
+				test_entry->forward = realloc(test_entry->forward, sizeof(entry) * test_entry->forward_size);
 			}
 			del_found = 0;
 			for (int backward_index = 0; backward_index < test_entry->backward_size; backward_index++) {
-				if (test_entry->backward[backward_index] == current_entry) {
+				if (&test_entry->backward[backward_index] == current_entry) {
 					del_found = 1;
 				}
 				if (del_found) {
@@ -166,7 +164,7 @@ void command_del(char* key, snapshot* snapshots, int snapshot_number) {
 			}
 			if (del_found) {
 				test_entry->backward_size--;
-				test_entry->backward = realloc(test_entry->backward, sizeof(entry*) * test_entry->backward_size);
+				test_entry->backward = realloc(test_entry->backward, sizeof(entry) * test_entry->backward_size);
 			}
 		}
 		int del_found = 0;
@@ -225,41 +223,40 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 		}
 	}
 	entry* current_entry = get_entry(array[1], snapshots, snapshot_number);
+	snapshot* current_snapshot = get_snapshot(snapshots, snapshot_number);
 	if (current_entry == NULL) {
-		snapshots[snapshot_number].num_entries++;
-		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, sizeof(entry) * snapshots[snapshot_number].num_entries);
-		current_entry = &snapshots[snapshot_number].entries[snapshots[snapshot_number].num_entries-1];
-		memset(current_entry, 0, sizeof(entry));
+		//update all forward and backwards to point to new entry locations
+		current_snapshot->num_entries++;
+		current_snapshot->entries = realloc(current_snapshot->entries, sizeof(entry) * (current_snapshot->num_entries));
+		current_entry = &current_snapshot->entries[current_snapshot->num_entries-1];
 		current_entry->forward_size = 0;
 		current_entry->backward_size = 0;
 		current_entry->forward = NULL;
 		current_entry->backward = NULL;
 		current_entry->values = NULL;
 	}
-	element *values = malloc(sizeof(element) * (array_length - 2));
+	current_entry->values = realloc(current_entry->values, sizeof(element) * (array_length - 2));
 	current_entry->length = array_length-2;
 
 	memcpy(current_entry->key, array[1], MAX_KEY);
 	for (int arg = 2; arg < array_length; arg++) {
-		element* new_element = &values[arg-2];
+		element* new_element = &current_entry->values[arg-2];
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
 		} else {
 			entry* test_entry = get_entry(array[arg], snapshots, snapshot_number);
 			test_entry->backward_size++;
-			test_entry->backward = realloc(test_entry->backward, sizeof(entry*)*test_entry->backward_size);
-			test_entry->backward[test_entry->backward_size-1] = current_entry;
+			test_entry->backward = realloc(test_entry->backward, sizeof(entry)*test_entry->backward_size);
+			test_entry->backward[test_entry->backward_size-1] = *current_entry;
 
 			current_entry->forward_size++;
-			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry*));
+			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry));
 			new_element->type = ENTRY;
 			new_element->entry = test_entry;
-			current_entry->forward[current_entry->forward_size-1] = test_entry;
+			current_entry->forward[current_entry->forward_size-1] = *test_entry;
 		}
 	}
-	current_entry->values = values;
-	current_entry->length = array_length-2;
 	printf("ok\n\n");
 }
 
@@ -309,14 +306,14 @@ void command_push(char** array, int array_length, snapshot* snapshots, int snaps
 		} else {
 			entry* test_entry = get_entry(array[arg], snapshots, snapshot_number);
 			test_entry->backward_size++;
-			test_entry->backward = realloc(test_entry->backward, sizeof(entry*)*test_entry->backward_size);
-			test_entry->backward[test_entry->backward_size-1] = current_entry;
+			test_entry->backward = realloc(test_entry->backward, sizeof(entry)*test_entry->backward_size);
+			test_entry->backward[test_entry->backward_size-1] = *current_entry;
 
 			current_entry->forward_size++;
-			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry*));
+			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry));
 			new_element->type = ENTRY;
 			new_element->entry = test_entry;
-			current_entry->forward[current_entry->forward_size-1] = test_entry;
+			current_entry->forward[current_entry->forward_size-1] = *test_entry;
 		}
 	}
 	printf("ok\n\n");
@@ -349,14 +346,14 @@ void command_append(char** array, int array_length, snapshot* snapshots, int sna
 		} else {
 			entry* test_entry = get_entry(array[arg], snapshots, snapshot_number);
 			test_entry->backward_size++;
-			test_entry->backward = realloc(test_entry->backward, sizeof(entry*)*test_entry->backward_size);
-			test_entry->backward[test_entry->backward_size-1] = current_entry;
+			test_entry->backward = realloc(test_entry->backward, sizeof(entry)*test_entry->backward_size);
+			test_entry->backward[test_entry->backward_size-1] = *current_entry;
 
 			current_entry->forward_size++;
-			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry*));
+			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry));
 			new_element->type = ENTRY;
 			new_element->entry = test_entry;
-			current_entry->forward[current_entry->forward_size-1] = test_entry;
+			current_entry->forward[current_entry->forward_size-1] = *test_entry;
 		}
 	}
 	printf("ok\n\n");
@@ -535,7 +532,7 @@ void command_len(char* key, snapshot* snapshots, int snapshot_number) {
 	if (current_entry != NULL) {
 		int size = 0;
 		for (int forw_entry = 0; forw_entry < current_entry->forward_size; forw_entry++) {
-			size += current_entry->forward[forw_entry]->length;
+			size += current_entry->forward[forw_entry].length;
 		}
 		size += current_entry->length - current_entry->forward_size;
 		printf("%d\n\n", size);
@@ -604,12 +601,14 @@ void command_sort(char* key, snapshot* snapshots, int snapshot_number) {
 }
 
 void recurse_forward(entry* current_entry, entry* end) {
+	// printf("%ld",current_entry->forward_size);
+	// fflush(stdout);
 	if (current_entry->forward_size == 0) {
 		return;
 	}
 	for (int forw_index = current_entry->forward_size - 1; forw_index >= 0; forw_index--) {
-		recurse_forward(current_entry->forward[forw_index], end);
-		printf("%s", current_entry->forward[forw_index]->key);
+		recurse_forward(&current_entry->forward[forw_index], end);
+		printf("%s", current_entry->forward[forw_index].key);
 		if (!(forw_index == 0 && strcmp(current_entry->key, end->key) == 0)) {
 			printf(", ");
 		}
@@ -635,8 +634,8 @@ void recurse_backward(entry* current_entry, entry* end) {
 		return;
 	}
 	for (int back_index = current_entry->backward_size - 1; back_index >= 0; back_index--) {
-		recurse_backward(current_entry->backward[back_index], end);
-		printf("%s", current_entry->backward[back_index]->key);
+		recurse_backward(&current_entry->backward[back_index], end);
+		printf("%s", current_entry->backward[back_index].key);
 		if (!(back_index == 0 && strcmp(current_entry->key, end->key) == 0)) {
 			printf(", ");
 		}
