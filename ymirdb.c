@@ -396,13 +396,6 @@ void command_pluck(char* key, int index, snapshot* snapshots, int snapshot_numbe
 		printf("no such key\n\n");
 		return;
 	}
-	int mem_index = -1;
-	for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
-		if (strcmp(snapshots[snapshot_number].entries[entry_index].key, current_entry->key) == 0) {
-			mem_index = entry_index;
-			break;
-		}
-	}
 
 	if (current_entry->values[index].type == INTEGER) {
 		printf("%d\n\n", current_entry->values[index].value);
@@ -412,12 +405,13 @@ void command_pluck(char* key, int index, snapshot* snapshots, int snapshot_numbe
 		free(current_entry->values[index].entry->forward);
 		free(current_entry->values[index].entry->backward);
 	}
-	for (int element_index = index; element_index < current_entry->length-1; element_index++) {
-		current_entry->values[element_index] = current_entry->values[element_index + 1];
+	for (int element_index = index; element_index < current_entry->length; element_index++) {
+		if (element_index != current_entry->length - 1) {
+			current_entry->values[element_index] = current_entry->values[element_index + 1];
+		}
 	}
 	current_entry->length--;
 	current_entry->values = realloc(current_entry->values, sizeof(element) * current_entry->length);
-	memcpy(&snapshots[snapshot_number].entries[mem_index], &current_entry, sizeof(entry));
 }
 
 void command_pop(char* key, snapshot* snapshots, int snapshot_number) {
