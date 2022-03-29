@@ -302,7 +302,7 @@ void command_push(char** array, int array_length, snapshot* snapshots, int snaps
 		old_len = current_entry->length;
 	}
 	for (int arg = 2; arg < array_length; arg++) {
-		element* new_element = &current_entry->values[old_len - (arg - 1)];
+		element* new_element = &current_entry->values[(array_length - 2) - (arg - 2) - 1];
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
@@ -396,9 +396,6 @@ void command_pluck(char* key, int index, snapshot* snapshots, int snapshot_numbe
 		printf("%d\n\n", current_entry->values[index].value);
 	} else {
 		printf("%s\n\n", current_entry->values[index].entry->key);
-		// free(current_entry->values[index].entry->values);
-		// free(current_entry->values[index].entry->forward);
-		// free(current_entry->values[index].entry->backward);
 	}
 	for (int element_index = index; element_index < current_entry->length; element_index++) {
 		if (element_index != current_entry->length - 1) {
