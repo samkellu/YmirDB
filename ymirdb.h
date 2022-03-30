@@ -22,6 +22,7 @@ struct element {
     int value;
     struct entry *entry;
   };
+  char key[MAX_KEY];
 };
 
 struct entry {

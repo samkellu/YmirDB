@@ -1,0 +1,32 @@
+==2829== Memcheck, a memory error detector
+==2829== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==2829== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==2829== Command: ./ymirdb
+==2829== 
+==2829== error calling PR_SET_PTRACER, vgdb might block
+> ok
+
+> ok
+
+> ok
+
+> b [2 3 4]
+a [b 1 2 3]
+
+> not permitted
+
+> ok
+
+> b [2 3 4]
+
+> 
+bye
+==2829== 
+==2829== HEAP SUMMARY:
+==2829==     in use at exit: 0 bytes in 0 blocks
+==2829==   total heap usage: 39 allocs, 39 frees, 2,080 bytes allocated
+==2829== 
+==2829== All heap blocks were freed -- no leaks are possible
+==2829== 
+==2829== For lists of detected and suppressed errors, rerun with: -s
+==2829== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,0 +1,93 @@
+==2792== Memcheck, a memory error detector
+==2792== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==2792== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==2792== Command: ./ymirdb
+==2792== 
+==2792== error calling PR_SET_PTRACER, vgdb might block
+==2792== Invalid read of size 1
+==2792==    at 0x483EF46: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x48CCD44: __vfprintf_internal (vfprintf-internal.c:1688)
+==2792==    by 0x48B5D6E: printf (printf.c:33)
+==2792==    by 0x109799: command_list_entries (ymirdb.c:85)
+==2792==    by 0x10C8FB: main (ymirdb.c:763)
+==2792==  Address 0x4a49a60 is 0 bytes inside a block of size 144 free'd
+==2792==    at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x10A08B: command_set (ymirdb.c:211)
+==2792==    by 0x10CA33: main (ymirdb.c:778)
+==2792==  Block was alloc'd at
+==2792==    at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x10A08B: command_set (ymirdb.c:211)
+==2792==    by 0x10CA33: main (ymirdb.c:778)
+==2792== 
+==2792== Invalid read of size 1
+==2792==    at 0x483EF54: strlen (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x48CCD44: __vfprintf_internal (vfprintf-internal.c:1688)
+==2792==    by 0x48B5D6E: printf (printf.c:33)
+==2792==    by 0x109799: command_list_entries (ymirdb.c:85)
+==2792==    by 0x10C8FB: main (ymirdb.c:763)
+==2792==  Address 0x4a49a61 is 1 bytes inside a block of size 144 free'd
+==2792==    at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x10A08B: command_set (ymirdb.c:211)
+==2792==    by 0x10CA33: main (ymirdb.c:778)
+==2792==  Block was alloc'd at
+==2792==    at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x10A08B: command_set (ymirdb.c:211)
+==2792==    by 0x10CA33: main (ymirdb.c:778)
+==2792== 
+==2792== Invalid read of size 1
+==2792==    at 0x48436E0: mempcpy (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x48E3661: _IO_new_file_xsputn (fileops.c:1236)
+==2792==    by 0x48E3661: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1197)
+==2792==    by 0x48CB12B: __vfprintf_internal (vfprintf-internal.c:1688)
+==2792==    by 0x48B5D6E: printf (printf.c:33)
+==2792==    by 0x109799: command_list_entries (ymirdb.c:85)
+==2792==    by 0x10C8FB: main (ymirdb.c:763)
+==2792==  Address 0x4a49a60 is 0 bytes inside a block of size 144 free'd
+==2792==    at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x10A08B: command_set (ymirdb.c:211)
+==2792==    by 0x10CA33: main (ymirdb.c:778)
+==2792==  Block was alloc'd at
+==2792==    at 0x483DFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2792==    by 0x10A08B: command_set (ymirdb.c:211)
+==2792==    by 0x10CA33: main (ymirdb.c:778)
+==2792== 
+> ok
+
+> ok
+
+> ok
+
+> c [800 12 33]
+b [12 a 55]
+a [123 33 44]
+
+> ok
+
+> b [12 a 55]
+a [123 33 44]
+
+> b
+a
+
+> no such key
+
+> not permitted
+
+> b [12 a 55]
+a [123 33 44]
+
+> b
+a
+
+> [123 33 44]
+
+> bye
+==2792== 
+==2792== HEAP SUMMARY:
+==2792==     in use at exit: 0 bytes in 0 blocks
+==2792==   total heap usage: 59 allocs, 59 frees, 2,600 bytes allocated
+==2792== 
+==2792== All heap blocks were freed -- no leaks are possible
+==2792== 
+==2792== For lists of detected and suppressed errors, rerun with: -s
+==2792== ERROR SUMMARY: 9 errors from 3 contexts (suppressed: 0 from 0)

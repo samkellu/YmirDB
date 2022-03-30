@@ -215,6 +215,13 @@ void command_set(char** array, int array_length, snapshot* snapshots) {
 		current_entry->forward = NULL;
 		current_entry->backward = NULL;
 		current_entry->values = NULL;
+		for (int entry_index = 0; entry_index < current_snapshot->num_entries - 1; entry_index++) {
+			for (int element_index = 0; element_index < current_snapshot->entries[entry_index].length; element_index++) {
+				if (current_snapshot->entries[entry_index].values[element_index].type == ENTRY) {
+					current_snapshot->entries[entry_index].values[element_index].entry = get_entry(current_snapshot->entries[entry_index].values[element_index].key, snapshots);
+				}
+			}
+		}
 	}
 
 	for (int forward_index = 0; forward_index < current_entry->forward_size; forward_index++) {
@@ -266,6 +273,7 @@ void command_set(char** array, int array_length, snapshot* snapshots) {
 			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry));
 			new_element->type = ENTRY;
 			new_element->entry = test_entry;
+			memcpy(new_element->key, test_entry->key, MAX_KEY);
 			current_entry->forward[current_entry->forward_size-1] = *test_entry;
 		}
 	}
@@ -325,6 +333,7 @@ void command_push(char** array, int array_length, snapshot* snapshots) {
 			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry));
 			new_element->type = ENTRY;
 			new_element->entry = test_entry;
+			memcpy(new_element->key, test_entry->key, MAX_KEY);
 			current_entry->forward[current_entry->forward_size-1] = *test_entry;
 		}
 	}
@@ -365,6 +374,7 @@ void command_append(char** array, int array_length, snapshot* snapshots) {
 			current_entry->forward = realloc(current_entry->forward, current_entry->forward_size * sizeof(entry));
 			new_element->type = ENTRY;
 			new_element->entry = test_entry;
+			memcpy(new_element->key, test_entry->key, MAX_KEY);
 			current_entry->forward[current_entry->forward_size-1] = *test_entry;
 		}
 	}
@@ -529,7 +539,7 @@ void command_min(char* key, snapshot* snapshots) {
 		}
 		return;
 	}
-	printf("No such entry\n\n");
+	printf("no such entry\n\n");
 }
 
 int recursive_max(entry* current_entry, int max) {
