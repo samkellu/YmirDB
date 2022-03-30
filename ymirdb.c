@@ -255,25 +255,21 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 		}
 	}
 
-	for (int backward_index = 0; backward_index < current_entry->forward_size; backward_index++) {
+	current_entry->forward_size = 0;
+	free(current_entry->forward);
+	for (int backward_index = 0; backward_index < current_entry->backward_size; backward_index++) {
 		entry* test_entry = get_entry(current_entry->backward[backward_index].key, snapshots, snapshot_number);
 		int del_found = 0;
 		for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
 			if (strcmp(test_entry->forward[forward_index].key, current_entry->key) == 0) {
 				test_entry->forward[forward_index] = *current_entry;
 			}
+		}
 	}
 	current_entry->values = realloc(current_entry->values, sizeof(element) * (array_length - 2));
 	current_entry->length = array_length-2;
-
-	free(current_entry->backward);
-	free(current_entry->forward);
-	current_entry->forward_size = 0;
-	current_entry->backward_size = 0;
 	current_entry->forward = NULL;
-	current_entry->backward = NULL;
 
-//break references................
 	memcpy(current_entry->key, array[1], MAX_KEY);
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[arg-2];
