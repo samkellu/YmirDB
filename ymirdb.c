@@ -89,17 +89,16 @@ void command_list_entries(snapshot* snapshots) {
 		return;
 	}
 	for (int current_entry = snapshots[snapshot_number].num_entries - 1; current_entry >= 0; current_entry--) {
-		entry read_entry = snapshots[snapshot_number].entries[current_entry];
-		printf("%s [", read_entry.key);
-		fflush(stdout);
-		for (int element = 0; element < read_entry.length; element++) {
-			if (read_entry.values[element].type == INTEGER) {
-				int value = read_entry.values[element].value;
+		entry* read_entry = get_entry(snapshots[snapshot_number].entries[current_entry].key, snapshots);
+		printf("%s [", read_entry->key);
+		for (int element = 0; element < read_entry->length; element++) {
+			if (read_entry->values[element].type == INTEGER) {
+				int value = read_entry->values[element].value;
 				printf("%d", value);
 			} else {
-				printf("%s", read_entry.values[element].entry->key);
+				printf("%s", read_entry->values[element].entry->key);
 			}
-			if (element != read_entry.length - 1) {
+			if (element != read_entry->length - 1) {
 				printf(" ");
 			}
 		}
@@ -142,14 +141,18 @@ void command_get(char* key, snapshot* snapshots) {// +++ rework to return the en
 }
 
 //validity?? +++
-void command_del(char* key, snapshot* snapshots, int quiet) {
+snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 	entry* current_entry = get_entry(key, snapshots);
 	if (current_entry != NULL) {
+		if (current_entry->backward_size > 0) {
+			printf("not permitted\n\n");
+			return snapshots;
+		}
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 			entry* test_entry = get_entry(snapshots[snapshot_number].entries[entry_index].key, snapshots);
 			int del_found = 0;
 			for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
-				if (&test_entry->forward[forward_index] == current_entry) {
+				if (strcmp(test_entry->forward[forward_index].key, current_entry->key) == 0) {
 					del_found = 1;
 				}
 				if (del_found) {
@@ -164,7 +167,7 @@ void command_del(char* key, snapshot* snapshots, int quiet) {
 			}
 			del_found = 0;
 			for (int backward_index = 0; backward_index < test_entry->backward_size; backward_index++) {
-				if (&test_entry->backward[backward_index] == current_entry) {
+				if (strcmp(test_entry->backward[backward_index].key, current_entry->key) == 0) {
 					del_found = 1;
 				}
 				if (del_found) {
@@ -209,16 +212,17 @@ void command_del(char* key, snapshot* snapshots, int quiet) {
 			}
 		}
 		snapshots[snapshot_number].num_entries--;
-		free(current_entry->values);
+		// free(current_entry->values);
 		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries * sizeof(entry));
 		if (!quiet) {
 			printf("ok\n\n");
 		}
-		return;
+		return snapshots;
 	}
 	if (!quiet) {
 		printf("no such key\n\n");
 	}
+	return snapshots;
 }
 //check snapshots are actually disjoint
 void command_purge(char* key, snapshot* snapshots) {
@@ -803,7 +807,7 @@ int main(void) {
 		} else if (strcasecmp("GET", arg) == 0) {
 			command_get(arg_array[1], snapshots);
 		} else if (strcasecmp("DEL", arg) == 0) {
-			command_del(arg_array[1], snapshots, 0);
+			snapshots = command_del(arg_array[1], snapshots, 0);
 		} else if (strcasecmp("PURGE", arg) == 0) {
 			command_purge(arg_array[1], snapshots);
 		} else if (strcasecmp("SET", arg) == 0) {
