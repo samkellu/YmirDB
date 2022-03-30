@@ -142,7 +142,7 @@ void command_get(char* key, snapshot* snapshots) {// +++ rework to return the en
 }
 
 //validity?? +++
-void command_del(char* key, snapshot* snapshots) {
+void command_del(char* key, snapshot* snapshots, int quiet) {
 	entry* current_entry = get_entry(key, snapshots);
 	if (current_entry != NULL) {
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
@@ -209,15 +209,25 @@ void command_del(char* key, snapshot* snapshots) {
 			}
 		}
 		snapshots[snapshot_number].num_entries--;
+		free(current_entry->values);
 		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries * sizeof(entry));
-		printf("ok\n\n");
+		if (!quiet) {
+			printf("ok\n\n");
+		}
 		return;
 	}
-	printf("no such key\n\n");
+	if (!quiet) {
+		printf("no such key\n\n");
+	}
 }
 
-void command_purge(char* key) {
-	//
+void command_purge(char* key, snapshot* snapshots) {
+	int original_snapshot = snapshot_number;
+	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
+		snapshot_number = snapshot_index;
+		command_del(key, snapshots, 1);
+	}
+	printf("ok\n\n");
 }
 
 void command_set(char** array, int array_length, snapshot* snapshots) {
@@ -490,8 +500,6 @@ snapshot* command_snapshot(snapshot* snapshots) {
 	snapshots = realloc(snapshots, sizeof(snapshot)*(total_snapshots + 1));
 	snapshot* new_snapshot = &snapshots[total_snapshots];
 	memcpy(new_snapshot, &snapshots[snapshot_number], sizeof(snapshot));
-	// new_snapshot.next = NULL;
-	// new_snapshot.prev = &snapshots[snapshot_number];
 	new_snapshot->num_entries = snapshots[snapshot_number].num_entries;
 	new_snapshot->entries = malloc(sizeof(entry) * new_snapshot->num_entries);
 	for (int entry_index = 0; entry_index < new_snapshot->num_entries; entry_index++) {
@@ -776,9 +784,9 @@ int main(void) {
 		} else if (strcasecmp("GET", arg) == 0) {
 			command_get(arg_array[1], snapshots);
 		} else if (strcasecmp("DEL", arg) == 0) {
-			command_del(arg_array[1], snapshots);
+			command_del(arg_array[1], snapshots, 0);
 		} else if (strcasecmp("PURGE", arg) == 0) {
-			command_purge(arg_array[1]);
+			command_purge(arg_array[1], snapshots);
 		} else if (strcasecmp("SET", arg) == 0) {
 			command_set(arg_array, array_length, snapshots);
 		} else if (strcasecmp("PUSH", arg) == 0) {
