@@ -1,0 +1,7 @@
+set a 1 2 3
+set b 2 3 4
+push a b
+list entries
+del b
+del a
+list entries
