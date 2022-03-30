@@ -55,8 +55,6 @@ snapshot* get_snapshot(snapshot* snapshots, int id) {
 void command_bye(snapshot* snapshots) {
 	for (int current_snapshot = 0; current_snapshot < sizeof(snapshots)/sizeof(snapshot*); current_snapshot++) {
 		snapshot_number = current_snapshot;
-		free(snapshots[current_snapshot].prev);
-		free(snapshots[current_snapshot].next);
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
 			entry* free_entry = get_entry(snapshots[current_snapshot].entries[current_entry].key, snapshots);
 			free(free_entry->backward);
