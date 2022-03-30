@@ -227,6 +227,7 @@ void command_purge(char* key, snapshot* snapshots) {
 		snapshot_number = snapshot_index;
 		command_del(key, snapshots, 1);
 	}
+	snapshot_number = original_snapshot;
 	printf("ok\n\n");
 }
 
