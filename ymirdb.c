@@ -110,11 +110,11 @@ void command_list_entries(snapshot* snapshots) {
 }
 
 void command_list_snapshots(snapshot *snapshots) {
-	if (total_snapshots == 0) {
+	if (total_snapshots == 1) {
 		printf("no snapshots\n\n");
 		return;
 	}
-	for (int snap_index = 0; snap_index < total_snapshots; snap_index++) {
+	for (int snap_index = 1; snap_index < total_snapshots; snap_index++) {
 		printf("%d", snapshots[snap_index].id);
 	}
 	printf("\n\n");
