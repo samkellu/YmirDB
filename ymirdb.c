@@ -259,7 +259,6 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 	free(current_entry->forward);
 	for (int backward_index = 0; backward_index < current_entry->backward_size; backward_index++) {
 		entry* test_entry = get_entry(current_entry->backward[backward_index].key, snapshots, snapshot_number);
-		int del_found = 0;
 		for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
 			if (strcmp(test_entry->forward[forward_index].key, current_entry->key) == 0) {
 				test_entry->forward[forward_index] = *current_entry;
