@@ -235,7 +235,7 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 		current_entry->backward = NULL;
 		current_entry->values = NULL;
 	}
-	
+
 	for (int forward_index = 0; forward_index < current_entry->forward_size; forward_index++) {
 		entry* test_entry = get_entry(current_entry->forward[forward_index].key, snapshots, snapshot_number);
 		int del_found = 0;
@@ -260,18 +260,8 @@ void command_set(char** array, int array_length, snapshot* snapshots, int snapsh
 		int del_found = 0;
 		for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
 			if (strcmp(test_entry->forward[forward_index].key, current_entry->key) == 0) {
-				del_found = 1;
+				test_entry->forward[forward_index] = *current_entry;
 			}
-			if (del_found) {
-				if (forward_index != test_entry->forward_size - 1) {
-					test_entry->forward[forward_index] = test_entry->forward[forward_index+1];
-				}
-			}
-		}
-		if (del_found) {
-			test_entry->forward_size--;
-			test_entry->forward = realloc(test_entry->forward, sizeof(entry) * test_entry->forward_size);
-		}
 	}
 	current_entry->values = realloc(current_entry->values, sizeof(element) * (array_length - 2));
 	current_entry->length = array_length-2;
