@@ -220,7 +220,7 @@ void command_del(char* key, snapshot* snapshots, int quiet) {
 		printf("no such key\n\n");
 	}
 }
-
+//check snapshots are actually disjoint
 void command_purge(char* key, snapshot* snapshots) {
 	int original_snapshot = snapshot_number;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
@@ -470,27 +470,45 @@ void command_pop(char* key, snapshot* snapshots) {
 	command_pluck(key, 1, snapshots);
 }
 
-void command_drop(int id, snapshot* snapshots) {
+void command_drop(int id, snapshot* snapshots, int quiet) {
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (id == 0 ||current_snapshot == NULL) {
+		if (!quiet) {
 		printf("no such snapshot\n\n");
+		}
 		return;
 	}
 	int del_found = 0;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		if (snapshots[snapshot_index].id == id) {
 			del_found = 1;
-			total_snapshots--;
+			if (!quiet) {
+				total_snapshots--;
+			}
 		}
 		if (del_found && snapshot_index != total_snapshots - 1) {
 			snapshots[snapshot_index] = snapshots[snapshot_index + 1];
 		}
 	}
-	printf("ok\n\n");
+	if (!quiet) {
+		printf("ok\n\n");
+	}
 }
 
-void command_rollback(char* id) {
-	//
+snapshot* command_rollback(int id, snapshot* snapshots) {
+	snapshot* current_snapshot = get_snapshot(snapshots, id);
+	if (id == 0 || current_snapshot == NULL) {
+		printf("no such snapshot\n\n");
+		return snapshots;
+	}
+	snapshot_number = id;
+	for (int snapshot_index = id + 1; snapshot_index <= total_snapshots; snapshot_index++) {
+		command_drop(snapshot_index, snapshots, 1);
+	}
+	total_snapshots = snapshot_number + 1;
+	snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
+	printf("ok\n\n");
+	return snapshots;
 }
 
 void command_checkout(char* id) {
@@ -801,14 +819,13 @@ int main(void) {
 		} else if (strcasecmp("POP", arg) == 0) {
 			command_pop(arg_array[1], snapshots);
 		} else if (strcasecmp("DROP", arg) == 0) {
-			command_drop(strtol(arg_array[1], NULL, 10), snapshots);
+			command_drop(strtol(arg_array[1], NULL, 10), snapshots, 0);
 		} else if (strcasecmp("ROLLBACK", arg) == 0) {
-			command_rollback(arg_array[1]);
+			snapshots = command_rollback(strtol(arg_array[1], NULL, 10), snapshots);
 		} else if (strcasecmp("CHECKOUT", arg) == 0) {
 			command_checkout(arg_array[1]);
 		} else if (strcasecmp("SNAPSHOT", arg) == 0) {
 			snapshots = command_snapshot(snapshots);
-			total_snapshots++;
 		} else if (strcasecmp("MIN", arg) == 0) {
 			command_min(arg_array[1], snapshots);
 		} else if (strcasecmp("MAX", arg) == 0) {
