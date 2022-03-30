@@ -151,21 +151,22 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 			entry* test_entry = get_entry(snapshots[snapshot_number].entries[entry_index].key, snapshots);
 			int del_found = 0;
-			for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
-				if (strcmp(test_entry->forward[forward_index].key, current_entry->key) == 0) {
-					del_found = 1;
-				}
-				if (del_found) {
-					if (forward_index != test_entry->forward_size - 1) {
-						test_entry->forward[forward_index] = test_entry->forward[forward_index+1];
-					}
-				}
-			}
-			if (del_found) {
-				test_entry->forward_size--;
-				test_entry->forward = realloc(test_entry->forward, sizeof(entry) * test_entry->forward_size);
-			}
-			del_found = 0;
+			// for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
+			// 	if (strcmp(test_entry->forward[forward_index].key, current_entry->key) == 0) {
+			// 		del_found = 1;
+			// 	}
+			// 	if (del_found) {
+			// 		printf("gay");
+			// 		if (forward_index != test_entry->forward_size - 1) {
+			// 			test_entry->forward[forward_index] = test_entry->forward[forward_index+1];
+			// 		}
+			// 	}
+			// }
+			// if (del_found) {
+			// 	test_entry->forward_size--;
+			// 	test_entry->forward = realloc(test_entry->forward, sizeof(entry) * test_entry->forward_size);
+			// }
+			// del_found = 0;
 			for (int backward_index = 0; backward_index < test_entry->backward_size; backward_index++) {
 				if (strcmp(test_entry->backward[backward_index].key, current_entry->key) == 0) {
 					del_found = 1;
@@ -182,26 +183,8 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 			}
 		}
 		int del_found = 0;
-		//Invalid state checking +++
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
 			entry* test_entry = get_entry(snapshots[snapshot_number].entries[entry_index].key, snapshots);
-			// int element_del_found = 0;
-			// for (int element_index = 0; element_index < test_entry->length; element_index++) {
-			// 	element el = test_entry->values[element_index];
-			// 	if (el.type == ENTRY && strcmp(el.entry->key, current_entry->key) == 0) {
-			//
-			// 		element_del_found = 1;
-			// 	}
-			// 	if (element_del_found) {
-			// 		if (entry_index != snapshots[snapshot_number].num_entries - 1) {
-			// 			test_entry->values[element_index] = test_entry->values[element_index+1];
-			// 		}
-			// 	}
-			// }
-			// if (element_del_found) {
-			// 	test_entry->length--;
-			// 	test_entry->values = realloc(test_entry->values, test_entry->length*sizeof(element));
-			// }
 			if (strcmp(test_entry->key, key) == 0) {
 				del_found = 1;
 				free(current_entry->values);
