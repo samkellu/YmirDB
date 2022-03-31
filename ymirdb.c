@@ -46,6 +46,7 @@ void command_bye(snapshot* snapshots) {
 			free(free_entry->backward);
 			free(free_entry->forward);
 			free(free_entry->values);
+			free(free_entry);
 		}
 		free(snapshots[current_snapshot].entries);
 	}
@@ -496,7 +497,7 @@ snapshot* command_snapshot(snapshot* snapshots) {
 	for (int entry_index = 0; entry_index < new_snapshot->num_entries; entry_index++) {
 		memcpy(&new_snapshot->entries[entry_index], &snapshots[snapshot_number].entries[entry_index], sizeof(entry));
 		new_snapshot->entries[entry_index].values = (element*)malloc(sizeof(element) * new_snapshot->entries[entry_index].length);
-		memcpy(new_snapshot->entries[entry_index].values, &snapshots[snapshot_number].entries[entry_index].values, sizeof(element) * new_snapshot->entries[entry_index].length);
+		memcpy(new_snapshot->entries[entry_index].values, snapshots[snapshot_number].entries[entry_index].values, sizeof(element) * new_snapshot->entries[entry_index].length);
 		new_snapshot->entries[entry_index].forward = (entry*)malloc(sizeof(entry) * new_snapshot->entries[entry_index].forward_size);
 		memcpy(new_snapshot->entries[entry_index].forward, snapshots[snapshot_number].entries[entry_index].forward, sizeof(entry) * new_snapshot->entries[entry_index].forward_size);
 		new_snapshot->entries[entry_index].backward = (entry*)malloc(sizeof(entry) * new_snapshot->entries[entry_index].backward_size);
