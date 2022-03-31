@@ -204,6 +204,8 @@ void command_purge(char* key, snapshot* snapshots) {
 				return;
 			}
 			command_del(key, 1);
+			snapshots[snapshot_index].entries = current_state.entries;
+			snapshots[snapshot_index].num_entries = current_state.num_entries;
 		}
 	}
 	current_state = original_snapshot;
