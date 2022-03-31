@@ -749,7 +749,7 @@ char** recurse_backward(entry* current_entry, char** array, int length, snapshot
 			array = (char**)realloc(array, sizeof(char*) * (length + 2));
 			char* key = malloc(MAX_KEY);
 			memcpy(key, current_entry->backward[back_index].key, MAX_KEY);
-			array[length++] = current_entry->backward[back_index].key;
+			array[length++] = key;
 			array[length] = NULL;
 		}
 		entry* back_entry = get_entry(current_entry->backward[back_index].key, snapshots);
