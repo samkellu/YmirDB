@@ -735,8 +735,10 @@ char** recurse_forward(entry* current_entry, char** array, int length, snapshot*
 			}
 		}
 		if (valid) {
-			array = realloc(array, sizeof(char*) * (length + 2));
-			array[length++] = current_entry->forward[forw_index].key;
+			array = (char**)realloc(array, sizeof(char*) * (length + 2));
+			char* key = malloc(MAX_KEY);
+			memcpy(key, current_entry->forward[forw_index].key, MAX_KEY);
+			array[length++] = key;
 			array[length] = NULL;
 		}
 		entry* for_entry = get_entry(current_entry->forward[forw_index].key, snapshots);
