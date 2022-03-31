@@ -15,7 +15,7 @@
 #include "ymirdb.h"
 
 int snapshot_number = 0;
-int total_snapshots = 0;
+int total_snapshots = 1;
 
 entry* get_entry(char* key, snapshot* snapshots) {
 	for (int entry_num = 0; entry_num < snapshots[snapshot_number].num_entries; entry_num++) {
@@ -843,8 +843,6 @@ int main(void) {
 					command_list_entries(snapshots);
 				} else if (strcasecmp("SNAPSHOTS", arg) == 0) {
 					command_list_snapshots(snapshots);
-					// total_snapshots++;
-					// snapshot_number = total_snapshots;//  maybe wrong
 				} else {
 					continue;
 				}
