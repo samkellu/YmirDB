@@ -111,7 +111,7 @@ void command_list_snapshots(snapshot *snapshots) {
 	printf("\n");
 }
 
-void command_get(char* key) {// +++ rework to return the entry, maybe a helper func?
+void command_get(char* key) {
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
 		printf("[");
@@ -192,6 +192,7 @@ void command_purge(char* key, snapshot* snapshots) {
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
 		if (current_entry->backward_size > 0) {
+			printf("not permitted\n\n");
 			return;
 		}
 		command_del(key, 1);
@@ -199,9 +200,11 @@ void command_purge(char* key, snapshot* snapshots) {
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		current_state = snapshots[snapshot_index];
+		current_state.num_entries = snapshots[snapshot_index].num_entries;
 		entry* current_entry = get_entry(key);
 		if (current_entry != NULL) {
 			if (current_entry->backward_size > 0) {
+				printf("not permitted\n\n");
 				return;
 			}
 			command_del(key, 1);
