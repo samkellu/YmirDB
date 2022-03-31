@@ -9,7 +9,7 @@
 #include <string.h>
 #include <strings.h>
 #include <stdbool.h>
-#include <ctype.h> //Check +++
+#include <ctype.h>
 #include <limits.h>
 
 #include "ymirdb.h"
@@ -134,6 +134,8 @@ void command_get(char* key) {
 
 //validity?? +++
 void command_del(char* key, int quiet) {
+	printf("yer %d\n", current_state.id);
+	fflush(stdout);
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
 		if (current_entry->backward_size > 0) {
@@ -142,7 +144,7 @@ void command_del(char* key, int quiet) {
 			}
 			return;
 		}
-		for  (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		for  (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
 			entry* test_entry = get_entry(current_state.entries[entry_index].key);
 			int del_found = 0;
 			for (int backward_index = 0; backward_index < test_entry->backward_size; backward_index++) {
@@ -161,7 +163,7 @@ void command_del(char* key, int quiet) {
 			}
 		}
 		int del_found = 0;
-		for  (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
+		for  (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
 			entry* test_entry = get_entry(current_state.entries[entry_index].key);
 			if (strcmp(test_entry->key, key) == 0) {
 				del_found = 1;
@@ -175,6 +177,8 @@ void command_del(char* key, int quiet) {
 				}
 			}
 		}
+		printf("yar %d\n", current_state.id);
+		fflush(stdout);
 		current_state.num_entries--;
 		current_state.entries = realloc(current_state.entries, current_state.num_entries * sizeof(entry));
 		for (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
@@ -203,22 +207,33 @@ void command_purge(char* key, snapshot* snapshots) {
 			printf("not permitted\n\n");
 			return;
 		}
-		command_del(key, 1);
 	}
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		current_state = snapshots[snapshot_index];
-		current_state.num_entries = snapshots[snapshot_index].num_entries;
 		entry* current_entry = get_entry(key);
 		if (current_entry != NULL) {
 			if (current_entry->backward_size > 0) {
 				printf("not permitted\n\n");
 				return;
 			}
-			command_del(key, 1);
-			snapshots[snapshot_index].entries = current_state.entries;
-			snapshots[snapshot_index].num_entries = current_state.num_entries;
 		}
+	}
+	current_state = original_snapshot;
+	command_del(key, 1);
+	command_list_keys();
+	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
+	printf("\ngreat divide\n");
+	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
+		current_state = snapshots[snapshot_index];
+		current_state.entries = snapshots[snapshot_index].entries;
+		command_list_keys();
+
+		printf("%d\n", current_state.num_entries);
+		fflush(stdout);
+		command_del(key, 1);
+		snapshots[snapshot_index].entries = current_state.entries;
+		snapshots[snapshot_index].num_entries = current_state.num_entries;
 	}
 	current_state = original_snapshot;
 	printf("ok\n\n");

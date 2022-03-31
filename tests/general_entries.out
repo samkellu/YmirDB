@@ -4,12 +4,86 @@
 
 > ok
 
+> saved as snapshot 1
+
+> yer 1
+yar 1
+c, 0, 1
+b, 1, 1
+ok
+
+> saved as snapshot 2
+
 > ok
 
-> c, 0
-b, 0
-b, 1
-b, 2
-saved as snapshot 1
+> b [1 2 3]
+c [7]
 
-> bye
+> not permitted
+
+> yer 1
+yar 1
+c, 0, 2
+b, 1, 2
+b [3 5 c]
+c [7]
+
+=================================================================
+==6138==ERROR: AddressSanitizer: heap-use-after-free on address 0x611000000180 at pc 0x7f9e527f6c65 bp 0x7fffd0f86c10 sp 0x7fffd0f863b8
+READ of size 1 at 0x611000000180 thread T0
+    #0 0x7f9e527f6c64  (/lib/x86_64-linux-gnu/libasan.so.5+0xd6c64)
+    #1 0x7f9e5319f531 in get_entry /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:22
+    #2 0x7f9e5319fad7 in command_list_entries /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:84
+    #3 0x7f9e531a0eb1 in command_purge /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:236
+    #4 0x7f9e531a8567 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:938
+    #5 0x7f9e525440b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #6 0x7f9e5319f42d in _start (/mnt/c/Users/samke/desktop/uni/comp2017/ymirdb/ymirdb+0x342d)
+
+0x611000000180 is located 0 bytes inside of 216-byte region [0x611000000180,0x611000000258)
+freed by thread T0 here:
+    #0 0x7f9e5282dffe in __interceptor_realloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dffe)
+    #1 0x7f9e531a0816 in command_del /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:183
+    #2 0x7f9e531a0d93 in command_purge /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:228
+    #3 0x7f9e531a8567 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:938
+    #4 0x7f9e525440b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+
+previously allocated by thread T0 here:
+    #0 0x7f9e5282dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
+    #1 0x7f9e531a5506 in command_snapshot /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:581
+    #2 0x7f9e531a892e in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:958
+    #3 0x7f9e525440b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+
+SUMMARY: AddressSanitizer: heap-use-after-free (/lib/x86_64-linux-gnu/libasan.so.5+0xd6c64) 
+Shadow bytes around the buggy address:
+  0x0c227fff7fe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c227fff7ff0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c227fff8000: fa fa fa fa fa fa fa fa fd fd fd fd fd fd fd fd
+  0x0c227fff8010: fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c227fff8020: fd fd fd fa fa fa fa fa fa fa fa fa fa fa fa fa
+=>0x0c227fff8030:[fd]fd fd fd fd fd fd fd fd fd fd fd fd fd fd fd
+  0x0c227fff8040: fd fd fd fd fd fd fd fd fd fd fd fa fa fa fa fa
+  0x0c227fff8050: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c227fff8060: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c227fff8070: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c227fff8080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+  Shadow gap:              cc
+==6138==ABORTING

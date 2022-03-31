@@ -7,9 +7,13 @@
 > b [2 3 4]
 a [b 1 2 3]
 
-> not permitted
+> yer 0
+not permitted
 
-> ok
+> yer 0
+yar 0
+b, 0, 0
+ok
 
 > b [2 3 4]
 

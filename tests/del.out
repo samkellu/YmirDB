@@ -8,7 +8,11 @@
 b [12 a 55]
 a [123 33 44]
 
-> ok
+> yer 0
+yar 0
+a, 0, 0
+b, 1, 0
+ok
 
 > b [12 a 55]
 a [123 33 44]
@@ -18,7 +22,8 @@ a
 
 > no such key
 
-> not permitted
+> yer 0
+not permitted
 
 > b [12 a 55]
 a [123 33 44]
