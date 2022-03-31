@@ -169,9 +169,7 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 		}
 		snapshots[snapshot_number].num_entries--;
 		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries * sizeof(entry));
-		if (!quiet) {
 			printf("ok\n\n");
-		}
 		return snapshots;
 	}
 	if (!quiet) {
@@ -184,7 +182,7 @@ void command_purge(char* key, snapshot* snapshots) {
 	int original_snapshot = snapshot_number;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		snapshot_number = snapshot_index;
-		command_del(key, snapshots, 0);
+		command_del(key, snapshots, 1);
 	}
 	snapshot_number = original_snapshot;
 }
