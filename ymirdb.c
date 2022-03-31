@@ -723,7 +723,7 @@ void lex_sort(char** array) {
 	free(array);
 }
 
-char** recurse_forward(entry* current_entry, char** array, int length) {
+char** recurse_forward(entry* current_entry, char** array, int length, snapshot* snapshots) {
 	if (current_entry->forward_size == 0) {
 		return array;
 	}
@@ -740,7 +740,7 @@ char** recurse_forward(entry* current_entry, char** array, int length) {
 			array[length] = NULL;
 		}
 		entry* for_entry = get_entry(current_entry->forward[forw_index].key, snapshots);
-		array = recurse_forward(for_entry, array, length);
+		array = recurse_forward(for_entry, array, length, snapshots);
 	}
 	return array;
 }
@@ -756,7 +756,7 @@ void command_forward(char* key, snapshot* snapshots) {
 		return;
 	}
 	char** array = (char**)malloc(0);
-	array = recurse_forward(current_entry, array, 0);
+	array = recurse_forward(current_entry, array, 0, snapshots);
 	lex_sort(array);
 	printf("\n\n");
 }
