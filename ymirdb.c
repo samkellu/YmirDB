@@ -568,8 +568,6 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		new_snapshot->entries[entry_index].backward = (entry*)malloc(sizeof(entry) * new_snapshot->entries[entry_index].backward_size);
 		memcpy(new_snapshot->entries[entry_index].backward, current_state.entries[entry_index].backward, sizeof(entry) * current_state.entries[entry_index].backward_size);
 		for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
-			printf("%s, %d\n",current_state.entries[entry_index].key, element_index);
-			fflush(stdout);
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &current_state.entries[entry_index].values[element_index], sizeof(element));
 			if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
 				memcpy(new_snapshot->entries[entry_index].values[element_index].entry, current_state.entries[entry_index].values[element_index].entry, sizeof(entry));
