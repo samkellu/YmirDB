@@ -604,15 +604,26 @@ void command_sum(char* key, snapshot* snapshots) {
 	printf("No such entry\n\n");
 }
 
+int recursive_len(char* key, snapshot* snapshots) {
+	entry* current_entry = get_entry(key, snapshots);
+	int size = 0;
+	if (current_entry != NULL) {
+		if (current_entry->forward_size == 0) {
+			return size + current_entry->length;
+		}
+		for (int forw_entry = 0; forw_entry < current_entry->forward_size; forw_entry++) {
+			size += recursive_len(current_entry->forward[forw_entry].key, snapshots);
+		}
+		size += current_entry->length - current_entry->forward_size;
+		return size;
+	}
+	return size;
+}
+
 void command_len(char* key, snapshot* snapshots) {
 	entry* current_entry = get_entry(key, snapshots);
 	if (current_entry != NULL) {
-		int size = 0;
-		for (int forw_entry = 0; forw_entry < current_entry->forward_size; forw_entry++) {
-			size += current_entry->forward[forw_entry].length;
-		}
-		size += current_entry->length - current_entry->forward_size;
-		printf("%d\n\n", size);
+		printf("%d\n\n", recursive_len(key, snapshots));
 		return;
 	}
 	printf("No such entry\n\n");
