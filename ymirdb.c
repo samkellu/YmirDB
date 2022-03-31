@@ -739,18 +739,19 @@ char** recurse_backward(entry* current_entry, char** array, int length, snapshot
 		return array;
 	}
 	for (int back_index = current_entry->backward_size - 1; back_index >= 0; back_index--) {
+		entry* back_entry = get_entry(current_entry->backward[back_index].key, snapshots);
 		int valid = 1;
 		for (int index = 0; index < length; index++) {
-			if (strcmp(current_entry->backward[back_index].key, array[index]) == 0) {
+			if (strcmp(back_entry->key, array[index]) == 0) {
 				valid = 0;
 			}
 		}
 		if (valid) {
 			array = realloc(array, sizeof(char*) * (length + 2));
-			array[length++] = current_entry->backward[back_index].key;
+			array[length++] = back_entry->key;
 			array[length] = NULL;
 		}
-		array = recurse_backward(&current_entry->backward[back_index], array, 0, snapshots);
+		array = recurse_backward(back_entry, array, 0, snapshots);
 	}
 	return array;
 }
