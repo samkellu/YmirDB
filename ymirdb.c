@@ -492,8 +492,8 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 }
 
 void command_checkout(int id, snapshot* snapshots) {
-	snapshot* current_snapshot = get_snapshot(snapshots, id);
-	if (id == 0 || current_snapshot == NULL) {
+	snapshot* current_snapshot = get_snapshot(snapshots, id - 1);
+	if (id - 1 == 0 || current_snapshot == NULL) {
 		printf("no such snapshot\n\n");
 		return;
 	}
