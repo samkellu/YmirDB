@@ -46,6 +46,7 @@ void command_bye(snapshot* snapshots) {
 	}
 	free(current_state.entries);
 	for (int current_snapshot = 0; current_snapshot < total_snapshots; current_snapshot++) {
+		current_state = snapshots[current_snapshot];
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
 			entry* free_entry = get_entry(snapshots[current_snapshot].entries[current_entry].key);
 			free(free_entry->backward);
