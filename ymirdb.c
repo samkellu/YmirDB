@@ -715,6 +715,7 @@ char** recurse_forward(entry* current_entry, char** array, int length) {
 		}
 		array = recurse_forward(&current_entry->forward[forw_index], array, length);
 	}
+	return array;
 }
 
 void command_forward(char* key, snapshot* snapshots) {
@@ -751,6 +752,7 @@ char** recurse_backward(entry* current_entry, char** array, int length, snapshot
 		}
 		array = recurse_backward(&current_entry->backward[back_index], array, 0, snapshots);
 	}
+	return array;
 }
 
 void command_backward(char* key, snapshot* snapshots) {
