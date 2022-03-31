@@ -131,7 +131,9 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 	entry* current_entry = get_entry(key, snapshots);
 	if (current_entry != NULL) {
 		if (current_entry->backward_size > 0) {
-			printf("not permitted\n\n");
+			if (!quiet) {
+				printf("not permitted\n\n");
+			}
 			return snapshots;
 		}
 		for  (int entry_index = 0; entry_index < snapshots[snapshot_number].num_entries; entry_index++) { //Case where the element is the last in the array is covered as default
@@ -169,7 +171,9 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 		}
 		snapshots[snapshot_number].num_entries--;
 		snapshots[snapshot_number].entries = realloc(snapshots[snapshot_number].entries, snapshots[snapshot_number].num_entries * sizeof(entry));
+		if (!quiet) {
 			printf("ok\n\n");
+		}
 		return snapshots;
 	}
 	if (!quiet) {
@@ -179,12 +183,18 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 }
 //check snapshots are actually disjoint
 void command_purge(char* key, snapshot* snapshots) {
+	entry* current_entry = get_entry(key, snapshots);
+	if (current_entry->backward_size > 0) {
+		printf("not permitted\n\n");
+		return;
+	}
 	int original_snapshot = snapshot_number;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		snapshot_number = snapshot_index;
 		command_del(key, snapshots, 1);
 	}
 	snapshot_number = original_snapshot;
+	printf("ok\n\n");
 }
 
 void command_set(char** array, int array_length, snapshot* snapshots) {
