@@ -482,7 +482,7 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 	return snapshots;
 }
 
-void command_checkout(char* id) {
+void command_checkout(int id, snapshot* snapshots) {
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (id == 0 || current_snapshot == NULL) {
 		printf("no such snapshot\n\n");
@@ -863,7 +863,7 @@ int main(void) {
 		} else if (strcasecmp("ROLLBACK", arg) == 0) {
 			snapshots = command_rollback(strtol(arg_array[1], NULL, 10), snapshots);
 		} else if (strcasecmp("CHECKOUT", arg) == 0) {
-			command_checkout(arg_array[1]);
+			command_checkout(strtol(arg_array[1], NULL, 10), snapshots);
 		} else if (strcasecmp("SNAPSHOT", arg) == 0) {
 			snapshots = command_snapshot(snapshots);
 		} else if (strcasecmp("MIN", arg) == 0) {
