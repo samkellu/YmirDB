@@ -738,7 +738,6 @@ char** recurse_backward(entry* current_entry, char** array, int length, snapshot
 		return array;
 	}
 	for (int back_index = current_entry->backward_size - 1; back_index >= 0; back_index--) {
-		entry* back_entry = get_entry(current_entry->backward[back_index].key, snapshots);
 		int valid = 1;
 		for (int index = 0; index < length; index++) {
 			if (strcmp(current_entry->backward[back_index].key, array[index]) == 0) {
