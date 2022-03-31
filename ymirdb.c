@@ -15,7 +15,7 @@
 #include "ymirdb.h"
 
 int snapshot_number = 0;
-int total_snapshots = 1;
+int total_snapshots = 0;
 
 entry* get_entry(char* key, snapshot* snapshots) {
 	for (int entry_num = 0; entry_num < snapshots[snapshot_number].num_entries; entry_num++) {
@@ -95,7 +95,7 @@ void command_list_entries(snapshot* snapshots) {
 }
 
 void command_list_snapshots(snapshot *snapshots) {
-	if (total_snapshots == 1 && snapshot_number == 1) {
+	if (total_snapshots == 0) {
 		printf("no snapshots\n\n");
 		return;
 	}
@@ -807,7 +807,6 @@ int main(void) {
 
 	snapshot* snapshots = (snapshot*) malloc(sizeof(snapshot));
 	snapshot* current_snapshot = &snapshots[0];
-	// memset(&snapshots[0], 0, sizeof(snapshot));
 	current_snapshot->id = 0;
 	current_snapshot->entries = NULL;
 	current_snapshot->num_entries = 0;
