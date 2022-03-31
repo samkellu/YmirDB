@@ -177,6 +177,14 @@ void command_del(char* key, int quiet) {
 		}
 		current_state.num_entries--;
 		current_state.entries = realloc(current_state.entries, current_state.num_entries * sizeof(entry));
+		for (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
+			entry* current_entry = get_entry(current_state.entries[entry_index].key);
+			for (int element_index = 0; element_index < current_entry->length; element_index++) {
+				if (current_entry->values[element_index].type == ENTRY) {
+					current_entry->values[element_index].entry = get_entry(current_entry->values[element_index].key);
+				}
+			}
+		}
 		if (!quiet) {
 			printf("ok\n\n");
 		}
@@ -560,6 +568,8 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		new_snapshot->entries[entry_index].backward = (entry*)malloc(sizeof(entry) * new_snapshot->entries[entry_index].backward_size);
 		memcpy(new_snapshot->entries[entry_index].backward, current_state.entries[entry_index].backward, sizeof(entry) * current_state.entries[entry_index].backward_size);
 		for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
+			printf("%s, %d\n",current_state.entries[entry_index].key, element_index);
+			fflush(stdout);
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &current_state.entries[entry_index].values[element_index], sizeof(element));
 			if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
 				memcpy(new_snapshot->entries[entry_index].values[element_index].entry, current_state.entries[entry_index].values[element_index].entry, sizeof(entry));

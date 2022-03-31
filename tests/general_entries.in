@@ -1,0 +1,6 @@
+set c 7
+set b 3 5 c
+set a 1 2 b
+del a
+snapshot
+bye
