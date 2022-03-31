@@ -187,11 +187,13 @@ void command_purge(char* key, snapshot* snapshots) {
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		snapshot_number = snapshot_index;
 		entry* current_entry = get_entry(key, snapshots);
-		if (current_entry->backward_size > 0) {
-			printf("not permitted\n\n");
-			return;
+		if (current_entry != NULL) {
+			if (current_entry->backward_size > 0) {
+				printf("not permitted\n\n");
+				return;
+			}
+			command_del(key, snapshots, 1);
 		}
-		command_del(key, snapshots, 1);
 	}
 	snapshot_number = original_snapshot;
 	printf("ok\n\n");
