@@ -46,7 +46,6 @@ void command_bye(snapshot* snapshots) {
 			free(free_entry->backward);
 			free(free_entry->forward);
 			free(free_entry->values);
-			free(free_entry);
 		}
 		free(snapshots[current_snapshot].entries);
 	}
