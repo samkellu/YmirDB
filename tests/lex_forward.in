@@ -1,0 +1,5 @@
+set a 123
+set b a
+set c b
+forward c
+bye

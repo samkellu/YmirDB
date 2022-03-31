@@ -483,7 +483,7 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 }
 
 void command_checkout(char* id) {
-	//
+	// +++
 }
 
 snapshot* command_snapshot(snapshot* snapshots) {
@@ -662,16 +662,58 @@ void command_sort(char* key, snapshot* snapshots) {
 	printf("ok\n\n");
 }
 
-void recurse_forward(entry* current_entry, entry* end) {
-	if (current_entry->forward_size == 0) {
-		return;
+void lex_sort(char** array) {
+	int length = 0;
+	while (array[++length] != NULL) {
 	}
-	for (int forw_index = current_entry->forward_size - 1; forw_index >= 0; forw_index--) {
-		recurse_forward(&current_entry->forward[forw_index], end);
-		printf("%s", current_entry->forward[forw_index].key);
-		if (!(forw_index == 0 && strcmp(current_entry->key, end->key) == 0)) {
+
+	while (length > 0) {
+		char* min_key = malloc(MAX_KEY);
+		memcpy(min_key, array[0], MAX_KEY);
+		for (int key_index = 0; key_index < length; key_index++) {
+			if (array[key_index][0] < min_key[0]) {
+				memcpy(min_key, array[key_index], MAX_KEY);
+			}
+		}
+		int del_found = 0;
+		for (int key_index = 0; key_index < length; key_index++) {
+			if (strcmp(array[key_index], min_key) == 0) {
+				del_found = 1;
+			}
+			if (del_found && key_index != length - 1) {
+				memcpy(array[key_index], array[key_index + 1], MAX_KEY);
+			}
+		}
+		if (del_found) {
+			array = realloc(array, sizeof(char*) * length - 1);
+		}
+		printf("%s", min_key);
+		if (length != 1) {
 			printf(", ");
 		}
+		length--;
+		free(min_key);
+	}
+	free(array);
+}
+
+char** recurse_forward(entry* current_entry, char** array, int length) {
+	if (current_entry->forward_size == 0) {
+		return array;
+	}
+	for (int forw_index = current_entry->forward_size - 1; forw_index >= 0; forw_index--) {
+		int valid = 1;
+		for (int index = 0; index < length; index++) {
+			if (strcmp(current_entry->forward[forw_index].key, array[index]) == 0) {
+				valid = 0;
+			}
+		}
+		if (valid) {
+			array = realloc(array, sizeof(char*) * (length + 2));
+			array[length++] = current_entry->forward[forw_index].key;
+			array[length] = NULL;
+		}
+		array = recurse_forward(&current_entry->forward[forw_index], array, length);
 	}
 }
 
@@ -685,21 +727,30 @@ void command_forward(char* key, snapshot* snapshots) {
 		printf("nil\n\n");
 		return;
 	}
-	recurse_forward(current_entry, current_entry);
+	char** array = (char**)malloc(0);
+	array = recurse_forward(current_entry, array, 0);
+	lex_sort(array);
 	printf("\n\n");
 }
 
-void recurse_backward(entry* current_entry, entry* end, snapshot* snapshots) {
+char** recurse_backward(entry* current_entry, char** array, int length, snapshot* snapshots) {
 	if (current_entry->backward_size == 0) {
-		return;
+		return array;
 	}
 	for (int back_index = current_entry->backward_size - 1; back_index >= 0; back_index--) {
 		entry* back_entry = get_entry(current_entry->backward[back_index].key, snapshots);
-		printf("%s", current_entry->backward[back_index].key);
-		if (!(back_entry->backward_size == 0 && back_index == 0)) {
-			printf(", ");
+		int valid = 1;
+		for (int index = 0; index < length; index++) {
+			if (strcmp(current_entry->backward[back_index].key, array[index]) == 0) {
+				valid = 0;
+			}
 		}
-		recurse_backward(back_entry, end, snapshots);
+		if (valid) {
+			array = realloc(array, sizeof(char*) * (length + 2));
+			array[length++] = current_entry->backward[back_index].key;
+			array[length] = NULL;
+		}
+		array = recurse_backward(&current_entry->backward[back_index], array, 0, snapshots);
 	}
 }
 
@@ -713,8 +764,9 @@ void command_backward(char* key, snapshot* snapshots) {
 		printf("nil\n\n");
 		return;
 	}
-
-	recurse_backward(current_entry, current_entry, snapshots);
+	char** array = (char**)malloc(0);
+	array = recurse_backward(current_entry, array, 0, snapshots);
+	lex_sort(array);
 	printf("\n\n");
 }
 

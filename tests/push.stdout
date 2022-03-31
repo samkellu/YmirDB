@@ -1,9 +1,9 @@
-==2913== Memcheck, a memory error detector
-==2913== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==2913== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
-==2913== Command: ./ymirdb
-==2913== 
-==2913== error calling PR_SET_PTRACER, vgdb might block
+==846== Memcheck, a memory error detector
+==846== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==846== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==846== Command: ./ymirdb
+==846== 
+==846== error calling PR_SET_PTRACER, vgdb might block
 > ok
 
 > ok
@@ -19,12 +19,12 @@
 > [c 22 44 123 33 554]
 
 > bye
-==2913== 
-==2913== HEAP SUMMARY:
-==2913==     in use at exit: 0 bytes in 0 blocks
-==2913==   total heap usage: 53 allocs, 53 frees, 2,904 bytes allocated
-==2913== 
-==2913== All heap blocks were freed -- no leaks are possible
-==2913== 
-==2913== For lists of detected and suppressed errors, rerun with: -s
-==2913== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==846== 
+==846== HEAP SUMMARY:
+==846==     in use at exit: 0 bytes in 0 blocks
+==846==   total heap usage: 53 allocs, 53 frees, 3,224 bytes allocated
+==846== 
+==846== All heap blocks were freed -- no leaks are possible
+==846== 
+==846== For lists of detected and suppressed errors, rerun with: -s
+==846== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
