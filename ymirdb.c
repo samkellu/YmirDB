@@ -201,7 +201,7 @@ void command_purge(char* key, snapshot* snapshots) {
 
 void command_set(char** array, int array_length, snapshot* snapshots) {
 	for (int check_arg = 2; check_arg < array_length; check_arg++) {
-		if (!((char)array[check_arg][0] >= '0' && (char)array[check_arg][0] <= '9')) {
+		if (!(((char)array[check_arg][0] >= '0' && (char)array[check_arg][0] <= '9') || array[check_arg][0] == '-')) {
 			if (strcmp(array[check_arg], array[1]) == 0) {
 				printf("not permitted\n\n");
 				return;
@@ -269,7 +269,7 @@ void command_set(char** array, int array_length, snapshot* snapshots) {
 	memcpy(current_entry->key, array[1], MAX_KEY);
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[arg-2];
-		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
+		if ((array[arg][0] >= '0' && array[arg][0] <= '9') || array[arg][0] == '-') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
 		} else {
@@ -351,7 +351,7 @@ void command_push(char** array, int array_length, snapshot* snapshots) {
 
 void command_append(char** array, int array_length, snapshot* snapshots) {
 	for (int arg = 2; arg < array_length; arg++) {
-		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
+		if ((array[arg][0] >= '0' && array[arg][0] <= '9') || array[arg][0] == '-') {
 			continue;
 		}
 		entry* current_entry = get_entry(array[arg], snapshots);
@@ -370,7 +370,7 @@ void command_append(char** array, int array_length, snapshot* snapshots) {
 	current_entry->values = realloc(current_entry->values, current_entry->length * sizeof(element));
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[old_len + (arg-2)];
-		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
+		if ((array[arg][0] >= '0' && array[arg][0] <= '9') || array[arg][0] == '-') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
 		} else {
