@@ -486,7 +486,7 @@ void command_checkout(int id, snapshot* snapshots) {
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (id == 0 || current_snapshot == NULL) {
 		printf("no such snapshot\n\n");
-		return snapshots;
+		return;
 	}
 	snapshot_number = id;
 	printf("ok\n\n");
