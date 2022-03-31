@@ -99,7 +99,7 @@ void command_list_snapshots(snapshot *snapshots) {
 		printf("no snapshots\n\n");
 		return;
 	}
-	for (int snap_index = 1; snap_index < total_snapshots; snap_index++) {
+	for (int snap_index = total_snapshots; snap_index > 0; snap_index--) {
 		printf("%d\n", snapshots[snap_index].id);
 	}
 	printf("\n");
