@@ -481,7 +481,7 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 		printf("no such snapshot\n\n");
 		return snapshots;
 	}
-	snapshot_number = id;
+	snapshot_number = id - 1;
 	for (int snapshot_index = id + 1; snapshot_index <= total_snapshots; snapshot_index++) {
 		command_drop(snapshot_index, snapshots, 1);
 	}
@@ -492,8 +492,8 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 }
 
 void command_checkout(int id, snapshot* snapshots) {
-	snapshot* current_snapshot = get_snapshot(snapshots, id - 1);
-	if (id - 1 == 0 || current_snapshot == NULL) {
+	snapshot* current_snapshot = get_snapshot(snapshots, id);
+	if (id == 0 || current_snapshot == NULL) {
 		printf("no such snapshot\n\n");
 		return;
 	}
