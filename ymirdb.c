@@ -100,9 +100,9 @@ void command_list_snapshots(snapshot *snapshots) {
 		return;
 	}
 	for (int snap_index = 1; snap_index < total_snapshots; snap_index++) {
-		printf("%d ", snapshots[snap_index].id);
+		printf("%d\n", snapshots[snap_index].id);
 	}
-	printf("\n\n");
+	printf("\n");
 }
 
 void command_get(char* key, snapshot* snapshots) {// +++ rework to return the entry, maybe a helper func?
