@@ -184,10 +184,9 @@ void command_purge(char* key, snapshot* snapshots) {
 	int original_snapshot = snapshot_number;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		snapshot_number = snapshot_index;
-		command_del(key, snapshots, 1);
+		command_del(key, snapshots, 0);
 	}
 	snapshot_number = original_snapshot;
-	printf("ok\n\n");
 }
 
 void command_set(char** array, int array_length, snapshot* snapshots) {
