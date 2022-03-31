@@ -95,7 +95,7 @@ void command_list_entries(snapshot* snapshots) {
 }
 
 void command_list_snapshots(snapshot *snapshots) {
-	if (total_snapshots == 0) {
+	if (total_snapshots == 1) {
 		printf("no snapshots\n\n");
 		return;
 	}
