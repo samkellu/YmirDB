@@ -609,7 +609,7 @@ int recursive_len(char* key, snapshot* snapshots) {
 	int size = 0;
 	if (current_entry != NULL) {
 		if (current_entry->forward_size == 0) {
-			return size + current_entry->length;
+			return current_entry->length;
 		}
 		for (int forw_entry = 0; forw_entry < current_entry->forward_size; forw_entry++) {
 			size += recursive_len(current_entry->forward[forw_entry].key, snapshots);
@@ -739,7 +739,8 @@ char** recurse_forward(entry* current_entry, char** array, int length) {
 			array[length++] = current_entry->forward[forw_index].key;
 			array[length] = NULL;
 		}
-		array = recurse_forward(&current_entry->forward[forw_index], array, length);
+		entry* for_entry = get_entry(current_entry->forward[forw_index].key, snapshots);
+		array = recurse_forward(for_entry, array, length);
 	}
 	return array;
 }
