@@ -747,13 +747,14 @@ char** recurse_backward(entry* current_entry, char** array, int length, snapshot
 		}
 		if (valid) {
 			array = (char**)realloc(array, sizeof(char*) * (length + 2));
+			char* key = malloc(MAX_KEY);
+			memcpy(key, current_entry->backward[back_index].key, MAX_KEY);
 			array[length++] = current_entry->backward[back_index].key;
 			array[length] = NULL;
 		}
 		entry* back_entry = get_entry(current_entry->backward[back_index].key, snapshots);
 		array = recurse_backward(back_entry, array, length, snapshots);
 	}
-	return array;
 }
 
 void command_backward(char* key, snapshot* snapshots) {
