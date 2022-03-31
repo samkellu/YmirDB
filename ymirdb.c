@@ -181,15 +181,15 @@ snapshot* command_del(char* key, snapshot* snapshots, int quiet) {
 	}
 	return snapshots;
 }
-//check snapshots are actually disjoint
+
 void command_purge(char* key, snapshot* snapshots) {
-	entry* current_entry = get_entry(key, snapshots);
-	if (current_entry->backward_size > 0) {
-		printf("not permitted\n\n");
-		return;
-	}
 	int original_snapshot = snapshot_number;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
+		entry* current_entry = get_entry(key, snapshots);
+		if (current_entry->backward_size > 0) {
+			printf("not permitted\n\n");
+			return;
+		}
 		snapshot_number = snapshot_index;
 		command_del(key, snapshots, 1);
 	}
