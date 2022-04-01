@@ -217,7 +217,6 @@ void command_purge(char* key, snapshot* snapshots) {
 	}
 	current_state = original_snapshot;
 	command_del(key, 1);
-	command_list_keys();
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		current_state = snapshots[snapshot_index];
