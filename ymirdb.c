@@ -465,6 +465,16 @@ void command_pluck(char* key, int index) {
 			}
 		}
 		if (valid == 0) {
+			for (int forward_entry = 0; forward_entry < test_entry->forward_size; forward_entry++) {
+				if (strcmp(test_entry->forward[forward_entry].key, current_entry->values[index].entry->key) == 0) {
+					del_found = 1;
+				}
+				if (del_found && forward_entry != test_entry->forward_size - 1) {
+					test_entry->forward[forward_entry] = test_entry->forward[forward_entry+1];
+				}
+			}
+			test_entry->forward = realloc(test_entry->forward, sizeof(entry*) * --test_entry->forward_size);
+
 			entry* test_entry = get_entry(current_entry->values[index].entry->key);
 			int del_found = 0;
 			for (int backward_entry = 0; backward_entry < test_entry->backward_size; backward_entry++) {
