@@ -15,14 +15,8 @@
 > b [1 2 3]
 c [7]
 
+> not permitted
 
-=================================================================
-==16411==ERROR: LeakSanitizer: detected memory leaks
+> ok
 
-Direct leak of 24 byte(s) in 3 object(s) allocated from:
-    #0 0x7f6889b5dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7f688a4e3e05 in command_snapshot /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:584
-    #2 0x7f688a4e6de7 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:952
-    #3 0x7f68898740b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-SUMMARY: AddressSanitizer: 24 byte(s) leaked in 3 allocation(s).
+> bye

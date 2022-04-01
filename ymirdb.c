@@ -483,13 +483,13 @@ void command_pop(char* key) {
 	command_pluck(key, 1);
 }
 
-void command_drop(int id, snapshot* snapshots, int quiet) {
+snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (id == 0 ||current_snapshot == NULL) {
 		if (!quiet) {
 			printf("no such snapshot\n\n");
 		}
-		return;
+		return snapshots;
 	}
 	int del_found = 0;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
@@ -501,11 +501,24 @@ void command_drop(int id, snapshot* snapshots, int quiet) {
 		}
 	}
 	if (del_found) {
+		snapshot original_snapshot;
+		memcpy(&original_snapshot, &current_state, sizeof(snapshot));
+		current_state = snapshots[total_snapshots];
+		for (int current_entry = 0; current_entry < snapshots[total_snapshots].num_entries; current_entry++) {
+			entry* free_entry = get_entry(snapshots[total_snapshots].entries[current_entry].key);
+			free(free_entry->backward);
+			free(free_entry->forward);
+			free(free_entry->values);
+		}
+		free(snapshots[total_snapshots].entries);
+		current_state = original_snapshot;
 		total_snapshots--;
+		snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
 	}
 	if (!quiet) {
 		printf("ok\n\n");
 	}
+	return snapshots;
 }
 
 void command_checkout(int id, snapshot* snapshots, int quiet) {
@@ -535,13 +548,11 @@ void command_checkout(int id, snapshot* snapshots, int quiet) {
 		for (int element_index = 0; element_index < current_snapshot->entries[entry_index].length; element_index++) {
 			memcpy(&current_state.entries[entry_index].values[element_index], &current_snapshot->entries[entry_index].values[element_index], sizeof(element));
 			if (current_snapshot->entries[entry_index].values[element_index].type == ENTRY) {
-				current_state.entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
 				current_state.entries[entry_index].values[element_index].entry = get_entry(current_snapshot->entries[entry_index].values[element_index].key);
 				memcpy(&current_state.entries[entry_index].values[element_index].key, &current_snapshot->entries[entry_index].values[element_index].key, MAX_KEY);
 			}
 		}
 	}
-	current_state.id = -1;
 	if (!quiet) {
 		printf("ok\n\n");
 	}
@@ -555,9 +566,8 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 	}
 	command_checkout(id, snapshots, 1);
 	for (int snapshot_index = id + 1; snapshot_index <= snapshot_counter; snapshot_index++) {
-		command_drop(snapshot_index, snapshots, 1);
+		snapshots = command_drop(snapshot_index, snapshots, 1);
 	}
-	snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
 	printf("ok\n\n");
 	return snapshots;
 }
@@ -581,15 +591,13 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &current_state.entries[entry_index].values[element_index], sizeof(element));
 			if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
-				new_snapshot->entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
+				// new_snapshot->entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
 				new_snapshot->entries[entry_index].values[element_index].entry = get_entry(current_state.entries[entry_index].values[element_index].entry->key);
 				memcpy(&new_snapshot->entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
-
 			}
 		}
 	}
 	new_snapshot->id = ++snapshot_counter;
-	current_state.id = -1;
 	++total_snapshots;
 	printf("saved as snapshot %d\n\n", new_snapshot->id);
 	return snapshots;
@@ -885,7 +893,6 @@ int main(void) {
 	char *token,*input;
 
 	snapshot* snapshots = (snapshot*) malloc(0);
-	current_state.id = -1;
 	current_state.entries = NULL;
 	current_state.num_entries = 0;
 	while (true) {
@@ -943,7 +950,7 @@ int main(void) {
 		} else if (strcasecmp("POP", arg) == 0) {
 			command_pop(arg_array[1]);
 		} else if (strcasecmp("DROP", arg) == 0) {
-			command_drop(strtol(arg_array[1], NULL, 10), snapshots, 0);
+			snapshots = command_drop(strtol(arg_array[1], NULL, 10), snapshots, 0);
 		} else if (strcasecmp("ROLLBACK", arg) == 0) {
 			snapshots = command_rollback(strtol(arg_array[1], NULL, 10), snapshots);
 		} else if (strcasecmp("CHECKOUT", arg) == 0) {
