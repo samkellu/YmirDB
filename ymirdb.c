@@ -159,8 +159,7 @@ void command_del(char* key, int quiet) {
 				}
 			}
 			if (del_found) {
-				test_entry->backward_size--;
-				test_entry->backward = realloc(test_entry->backward, sizeof(entry) * test_entry->backward_size);
+				test_entry->backward = realloc(test_entry->backward, sizeof(entry) * --test_entry->backward_size);
 			}
 		}
 		int del_found = 0;
@@ -459,15 +458,32 @@ void command_pluck(char* key, int index) {
 		printf("%d\n\n", current_entry->values[index].value);
 	} else {
 		printf("%s\n\n", current_entry->values[index].entry->key);
+		int valid = 1;
+		for (int element_index = 0; element_index < current_entry->length; element_index++) {
+			if (strcmp(current_entry->values[element_index].key, current_entry->values[index].entry->key) == 0) {
+				valid--;
+			}
+		}
+		if (valid == 0) {
+			entry* test_entry = get_entry(current_entry->values[index].entry->key);
+			int del_found = 0;
+			for (int backward_entry = 0; backward_entry < test_entry->backward_size; backward_entry++) {
+				if (strcmp(test_entry->backward[backward_entry].key, current_entry->values[index].entry->key) == 0) {
+					del_found = 1;
+				}
+				if (del_found && backward_entry != test_entry->backward_size - 1) {
+					test_entry->backward[backward_entry] = test_entry->backward[backward_entry+1];
+				}
+			}
+			test_entry->backward = realloc(test_entry->backward, sizeof(entry*) * --test_entry->backward_size);
+		}
 	}
-	command_del(current_entry->key, 1);
-	// for (int element_index = index; element_index < current_entry->length; element_index++) {
-	// 	if (element_index != current_entry->length - 1) {
-	// 		current_entry->values[element_index] = current_entry->values[element_index + 1];
-	// 	}
-	// }
-	// current_entry->length--;
-	// current_entry->values = realloc(current_entry->values, sizeof(element) * current_entry->length);
+	for (int element_index = index; element_index < current_entry->length; element_index++) {
+		if (element_index != current_entry->length - 1) {
+			current_entry->values[element_index] = current_entry->values[element_index + 1];
+		}
+	}
+	current_entry->values = realloc(current_entry->values, sizeof(element) * --current_entry->length);
 }
 
 void command_pop(char* key) {
