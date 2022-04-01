@@ -824,7 +824,6 @@ void command_forward(char* key) {
 	char** array = (char**)malloc(0);
 	array = recurse_forward(current_entry, array, 0);
 	lex_sort(array);
-	int length = 0;
 	printf("\n\n");
 }
 
