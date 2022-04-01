@@ -82,82 +82,143 @@ b [2 c]
 c [3 d]
 d [-1 4 e]
 
+> 1
+
+> general
+
+> general
+
+> general
+
+> general
+
+> simple
+
+> 6
+
+> 5
+
+> 4
+
+> 3
+
+> 1
+
+> b, c, d, e
+
+> c, d, e
+
+> d, e
+
+> e
+
+> nil
+
+> nil
+
+> a
+
+> a, b
+
+> a, b, c
+
+> a, b, c, d
+
+> saved as snapshot 2
+
+> ok
+
+> > ok
+
+> > [4 -1]
+
+> > ok
+
+> > [-1 4]
+
+> > ok
+
+> > ok
+
+> > e
+a
+b
+c
+d
+
+> > > > > > e [0]
+a [1 b]
+b [2 c]
+c [3 d]
+d [-1 4 e]
+
+> > > > > > 2
+1
+
+> > > general
+
+> > general
+
+> > general
+
+> > general
+
+> > simple
+
+> > 6
+
+> 5
+
+> 4
+
+> 3
+
+> 1
+
+> b, c, d, e
+
+> c, d, e
+
+> d, e
+
+> e
+
+> nil
+
+> nil
+
+> a
+
+> a, b
+
+> a, b, c
+
+> a, b, c, d
+
+> saved as snapshot 3
+
+> ok
+
+> e
+a
+b
+c
+d
+
+> e [0]
+a [1 b]
+b [2 c]
+c [3 d]
+d [-1 4 e]
+
 
 =================================================================
-==1416==ERROR: LeakSanitizer: detected memory leaks
+==13241==ERROR: LeakSanitizer: detected memory leaks
 
-Direct leak of 112 byte(s) in 7 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7dd7f1 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:795
-    #2 0x7fb49b7ddac6 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:817
-    #3 0x7fb49b7dec3b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:959
-    #4 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+Direct leak of 56 byte(s) in 7 object(s) allocated from:
+    #0 0x7ff45405dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
+    #1 0x7ff4549cc11f in command_checkout /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:538
+    #2 0x7ff4549cfca3 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:950
+    #3 0x7ff453d740b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
 
-Direct leak of 112 byte(s) in 7 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7ddc5a in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:835
-    #2 0x7fb49b7ddf2f in command_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:857
-    #3 0x7fb49b7dec90 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:961
-    #4 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-Direct leak of 80 byte(s) in 5 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7dd7f1 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:795
-    #2 0x7fb49b7dda0b in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:801
-    #3 0x7fb49b7ddac6 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:817
-    #4 0x7fb49b7dec3b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:959
-    #5 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-Direct leak of 80 byte(s) in 5 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7ddc5a in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:835
-    #2 0x7fb49b7dde74 in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:841
-    #3 0x7fb49b7ddf2f in command_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:857
-    #4 0x7fb49b7dec90 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:961
-    #5 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-Direct leak of 48 byte(s) in 3 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7dd7f1 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:795
-    #2 0x7fb49b7dda0b in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:801
-    #3 0x7fb49b7dda0b in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:801
-    #4 0x7fb49b7ddac6 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:817
-    #5 0x7fb49b7dec3b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:959
-    #6 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-Direct leak of 48 byte(s) in 3 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7ddc5a in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:835
-    #2 0x7fb49b7dde74 in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:841
-    #3 0x7fb49b7dde74 in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:841
-    #4 0x7fb49b7ddf2f in command_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:857
-    #5 0x7fb49b7dec90 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:961
-    #6 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-Direct leak of 24 byte(s) in 3 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7db11f in command_checkout /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:534
-    #2 0x7fb49b7de95e in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:941
-    #3 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-Direct leak of 16 byte(s) in 1 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7ddc5a in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:835
-    #2 0x7fb49b7dde74 in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:841
-    #3 0x7fb49b7dde74 in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:841
-    #4 0x7fb49b7dde74 in recurse_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:841
-    #5 0x7fb49b7ddf2f in command_backward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:857
-    #6 0x7fb49b7dec90 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:961
-    #7 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-Direct leak of 16 byte(s) in 1 object(s) allocated from:
-    #0 0x7fb49ae6dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7fb49b7dd7f1 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:795
-    #2 0x7fb49b7dda0b in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:801
-    #3 0x7fb49b7dda0b in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:801
-    #4 0x7fb49b7dda0b in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:801
-    #5 0x7fb49b7ddac6 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:817
-    #6 0x7fb49b7dec3b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:959
-    #7 0x7fb49ab840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-
-SUMMARY: AddressSanitizer: 536 byte(s) leaked in 35 allocation(s).
+SUMMARY: AddressSanitizer: 56 byte(s) leaked in 7 allocation(s).

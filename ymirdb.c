@@ -51,6 +51,11 @@ void command_bye(snapshot* snapshots) {
 			entry* free_entry = get_entry(snapshots[current_snapshot].entries[current_entry].key);
 			free(free_entry->backward);
 			free(free_entry->forward);
+			// for (int current_element = 0; current_element < snapshots[current_snapshot].entries[current_entry].length; current_element++) {
+			// 	if (snapshots[current_snapshot].entries[current_entry].values[current_element].type == ENTRY) {
+			// 		free(&snapshots[current_snapshot].entries[current_entry].values[current_element].entry);
+			// 	}
+			// }
 			free(free_entry->values);
 		}
 		free(snapshots[current_snapshot].entries);
@@ -245,14 +250,7 @@ void command_set(char** array, int array_length) {
 	}
 	entry* current_entry = get_entry(array[1]);
 	if (current_entry == NULL) {
-		current_state.num_entries++;
-		current_state.entries = realloc(current_state.entries, sizeof(entry) * (current_state.num_entries));
-		current_entry = &current_state.entries[current_state.num_entries-1];
-		current_entry->forward_size = 0;
-		current_entry->backward_size = 0;
-		current_entry->forward = NULL;
-		current_entry->backward = NULL;
-		current_entry->values = NULL;
+		current_state.entries = realloc(current_state.entries, sizeof(entry) * (++current_state.num_entries));
 		for (int entry_index = 0; entry_index < current_state.num_entries - 1; entry_index++) {
 			for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
 				if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
@@ -260,6 +258,12 @@ void command_set(char** array, int array_length) {
 				}
 			}
 		}
+		current_entry = &current_state.entries[current_state.num_entries-1];
+		current_entry->forward_size = 0;
+		current_entry->backward_size = 0;
+		current_entry->forward = NULL;
+		current_entry->backward = NULL;
+		current_entry->values = NULL;
 	}
 
 	for (int forward_index = 0; forward_index < current_entry->forward_size; forward_index++) {
@@ -532,8 +536,8 @@ void command_checkout(int id, snapshot* snapshots, int quiet) {
 			memcpy(&current_state.entries[entry_index].values[element_index], &current_snapshot->entries[entry_index].values[element_index], sizeof(element));
 			if (current_snapshot->entries[entry_index].values[element_index].type == ENTRY) {
 				current_state.entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
-				memcpy(&current_state.entries[entry_index].values[element_index].entry, &current_state.entries[entry_index].values[element_index].entry, sizeof(entry*));
-				memcpy(&current_state.entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
+				current_state.entries[entry_index].values[element_index].entry = get_entry(current_snapshot->entries[entry_index].values[element_index].key);
+				memcpy(&current_state.entries[entry_index].values[element_index].key, &current_snapshot->entries[entry_index].values[element_index].key, MAX_KEY);
 			}
 		}
 	}
@@ -577,9 +581,9 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &current_state.entries[entry_index].values[element_index], sizeof(element));
 			if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
-				current_state.entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
-				memcpy(&current_state.entries[entry_index].values[element_index].entry, &current_state.entries[entry_index].values[element_index].entry, sizeof(entry*));
-				memcpy(&current_state.entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
+				// new_snapshot->entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
+				new_snapshot->entries[entry_index].values[element_index].entry = get_entry(current_state.entries[entry_index].values[element_index].entry->key);
+				memcpy(&new_snapshot->entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
 
 			}
 		}
@@ -750,8 +754,8 @@ void command_sort(char* key) {
 
 void lex_sort(char** array) {
 	int length = 0;
-	while (array[++length] != NULL) {
-	}
+	while (array[length++] != NULL) {}
+	length--;
 
 	while (length > 0) {
 		char* min_key = malloc(MAX_KEY);
@@ -771,6 +775,7 @@ void lex_sort(char** array) {
 			}
 		}
 		if (del_found) {
+			free(array[length - 1]);
 			array = realloc(array, sizeof(char*) * length - 1);
 		}
 		printf("%s", min_key);
@@ -796,9 +801,8 @@ char** recurse_forward(entry* current_entry, char** array, int length) {
 		}
 		if (valid) {
 			array = (char**)realloc(array, sizeof(char*) * (length + 2));
-			char* key = malloc(MAX_KEY);
-			memcpy(key, current_entry->forward[forw_index].key, MAX_KEY);
-			array[length++] = key;
+			array[length] = (char*)malloc(MAX_KEY);
+			memcpy(array[length++], current_entry->forward[forw_index].key, MAX_KEY);
 			array[length] = NULL;
 		}
 		entry* for_entry = get_entry(current_entry->forward[forw_index].key);
@@ -820,6 +824,7 @@ void command_forward(char* key) {
 	char** array = (char**)malloc(0);
 	array = recurse_forward(current_entry, array, 0);
 	lex_sort(array);
+	int length = 0;
 	printf("\n\n");
 }
 
@@ -836,9 +841,8 @@ char** recurse_backward(entry* current_entry, char** array, int length) {
 		}
 		if (valid) {
 			array = (char**)realloc(array, sizeof(char*) * (length + 2));
-			char* key = malloc(MAX_KEY);
-			memcpy(key, current_entry->backward[back_index].key, MAX_KEY);
-			array[length++] = key;
+			array[length] = (char*)malloc(MAX_KEY);
+			memcpy(array[length++], current_entry->backward[back_index].key, MAX_KEY);
 			array[length] = NULL;
 		}
 		entry* back_entry = get_entry(current_entry->backward[back_index].key);
@@ -862,6 +866,7 @@ void command_backward(char* key) {
 	lex_sort(array);
 	printf("\n\n");
 }
+
 
 void command_type(char* key) {
 	entry* current_entry = get_entry(key);

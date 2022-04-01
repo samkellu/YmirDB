@@ -56,3 +56,60 @@ BACKWARD d
 BACKWARD e
 SNAPSHOT
 CHECKOUT 1
+
+APPEND d -1
+ok
+GET d
+[4 -1]
+SORT d
+ok
+GET d
+[-1 4]
+SET e 0
+ok
+APPEND d e
+ok
+LIST KEYS
+e
+a
+b
+c
+d
+LIST ENTRIES
+e [0]
+a [1 b]
+b [2 c]
+c [3 d]
+d [-1 4 e]
+LIST SNAPSHOTS
+2
+1
+TYPE a
+general
+TYPE b
+general
+TYPE c
+general
+TYPE d
+general
+TYPE e
+simple
+LEN a
+LEN b
+LEN c
+LEN d
+LEN e
+FORWARD a
+FORWARD b
+FORWARD c
+FORWARD d
+FORWARD e
+BACKWARD a
+BACKWARD b
+BACKWARD c
+BACKWARD d
+BACKWARD e
+SNAPSHOT
+CHECKOUT 2
+LIST KEYS
+LIST ENTRIES
