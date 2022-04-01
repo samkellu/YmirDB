@@ -532,7 +532,8 @@ void command_checkout(int id, snapshot* snapshots, int quiet) {
 			memcpy(&current_state.entries[entry_index].values[element_index], &current_snapshot->entries[entry_index].values[element_index], sizeof(element));
 			if (current_snapshot->entries[entry_index].values[element_index].type == ENTRY) {
 				current_state.entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
-				memcpy(&current_state.entries[entry_index].values[element_index].entry, &current_snapshot->entries[entry_index].values[element_index].entry, sizeof(entry*));
+				memcpy(&current_state.entries[entry_index].values[element_index].entry, &current_state.entries[entry_index].values[element_index].entry, sizeof(entry*));
+				memcpy(&current_state.entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
 			}
 		}
 	}
@@ -576,7 +577,10 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &current_state.entries[entry_index].values[element_index], sizeof(element));
 			if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
-				memcpy(new_snapshot->entries[entry_index].values[element_index].entry, current_state.entries[entry_index].values[element_index].entry, sizeof(entry));
+				current_state.entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
+				memcpy(&current_state.entries[entry_index].values[element_index].entry, &current_state.entries[entry_index].values[element_index].entry, sizeof(entry*));
+				memcpy(&current_state.entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
+
 			}
 		}
 	}
