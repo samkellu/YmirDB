@@ -31,7 +31,7 @@ snapshot* get_snapshot(snapshot* snapshots, int id) {
 	if (id > snapshot_counter || id < 0) {
 		return NULL;
 	}
-	for (int snap = 0; snap < snapshot_counter; snap++) {
+	for (int snap = 0; snap < total_snapshots; snap++) {
 		if (snapshots[snap].id == id) {
 			return &snapshots[snap];
 		}
