@@ -136,7 +136,6 @@ void command_get(char* key) {
 	printf("no such key\n\n");
 }
 
-//validity?? +++
 void command_del(char* key, int quiet) {
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
@@ -322,7 +321,7 @@ void command_set(char** array, int array_length) {
 	printf("ok\n\n");
 }
 
-int value_checks(char** array, int array_length, entry* current_entry) { //+++ not necessary??
+int value_checks(char** array, int array_length, entry* current_entry) {
 	if (current_entry == NULL) {
 		printf("no such key\n\n");
 		return 1;
@@ -461,13 +460,14 @@ void command_pluck(char* key, int index) {
 	} else {
 		printf("%s\n\n", current_entry->values[index].entry->key);
 	}
-	for (int element_index = index; element_index < current_entry->length; element_index++) {
-		if (element_index != current_entry->length - 1) {
-			current_entry->values[element_index] = current_entry->values[element_index + 1];
-		}
-	}
-	current_entry->length--;
-	current_entry->values = realloc(current_entry->values, sizeof(element) * current_entry->length);
+	command_del(key, 1);
+	// for (int element_index = index; element_index < current_entry->length; element_index++) {
+	// 	if (element_index != current_entry->length - 1) {
+	// 		current_entry->values[element_index] = current_entry->values[element_index + 1];
+	// 	}
+	// }
+	// current_entry->length--;
+	// current_entry->values = realloc(current_entry->values, sizeof(element) * current_entry->length);
 }
 
 void command_pop(char* key) {
@@ -921,7 +921,7 @@ int main(void) {
 		} else if (strcasecmp("HELP", arg) == 0) {
 			command_help();
 		} else if (strcasecmp("LIST", arg) == 0) {
-				char *arg = arg_array[1];//+++
+				char *arg = arg_array[1];
 				if (strcasecmp("KEYS", arg) == 0) {
 					command_list_keys();
 				} else if (strcasecmp("ENTRIES", arg) == 0) {
