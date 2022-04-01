@@ -1,20 +1,20 @@
 
 =================================================================
-==6185==ERROR: LeakSanitizer: detected memory leaks
+==1308==ERROR: LeakSanitizer: detected memory leaks
 
 Direct leak of 16 byte(s) in 1 object(s) allocated from:
-    #0 0x7f101f26dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7f101fbe3793 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:810
-    #2 0x7f101fbe39ad in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:816
-    #3 0x7f101fbe3a68 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:832
-    #4 0x7f101fbe4bdd in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:974
-    #5 0x7f101ef840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #0 0x7f74c675dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
+    #1 0x7f74c70cf7f1 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:795
+    #2 0x7f74c70cfa0b in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:801
+    #3 0x7f74c70cfac6 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:817
+    #4 0x7f74c70d0c3b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:959
+    #5 0x7f74c64740b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
 
 Direct leak of 16 byte(s) in 1 object(s) allocated from:
-    #0 0x7f101f26dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7f101fbe3793 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:810
-    #2 0x7f101fbe3a68 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:832
-    #3 0x7f101fbe4bdd in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:974
-    #4 0x7f101ef840b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #0 0x7f74c675dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
+    #1 0x7f74c70cf7f1 in recurse_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:795
+    #2 0x7f74c70cfac6 in command_forward /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:817
+    #3 0x7f74c70d0c3b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:959
+    #4 0x7f74c64740b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
 
 SUMMARY: AddressSanitizer: 32 byte(s) leaked in 2 allocation(s).
