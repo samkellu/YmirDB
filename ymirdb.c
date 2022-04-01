@@ -460,7 +460,7 @@ void command_pluck(char* key, int index) {
 	} else {
 		printf("%s\n\n", current_entry->values[index].entry->key);
 	}
-	command_del(current_entry.key, 1);
+	command_del(current_entry->key, 1);
 	// for (int element_index = index; element_index < current_entry->length; element_index++) {
 	// 	if (element_index != current_entry->length - 1) {
 	// 		current_entry->values[element_index] = current_entry->values[element_index + 1];
