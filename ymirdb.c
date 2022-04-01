@@ -134,8 +134,6 @@ void command_get(char* key) {
 
 //validity?? +++
 void command_del(char* key, int quiet) {
-	printf("yer %d\n", current_state.id);
-	fflush(stdout);
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
 		if (current_entry->backward_size > 0) {
@@ -177,8 +175,6 @@ void command_del(char* key, int quiet) {
 				}
 			}
 		}
-		printf("yar %d\n", current_state.id);
-		fflush(stdout);
 		current_state.num_entries--;
 		current_state.entries = realloc(current_state.entries, current_state.num_entries * sizeof(entry));
 		for (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
@@ -223,14 +219,9 @@ void command_purge(char* key, snapshot* snapshots) {
 	command_del(key, 1);
 	command_list_keys();
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
-	printf("\ngreat divide\n");
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		current_state = snapshots[snapshot_index];
 		current_state.entries = snapshots[snapshot_index].entries;
-		command_list_keys();
-
-		printf("%d\n", current_state.num_entries);
-		fflush(stdout);
 		command_del(key, 1);
 		snapshots[snapshot_index].entries = current_state.entries;
 		snapshots[snapshot_index].num_entries = current_state.num_entries;
