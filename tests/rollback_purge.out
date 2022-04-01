@@ -1,0 +1,28 @@
+> no such snapshot
+
+> no such snapshot
+
+> ok
+
+> ok
+
+> b [3 4]
+a [1 2]
+
+> saved as snapshot 1
+
+> ok
+
+> c [5 6]
+b [3 4]
+a [1 2]
+
+> saved as snapshot 2
+
+> ok
+
+> ok
+
+> 1
+
+> bye

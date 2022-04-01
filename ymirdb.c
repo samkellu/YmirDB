@@ -503,14 +503,14 @@ snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 	if (del_found) {
 		snapshot original_snapshot;
 		memcpy(&original_snapshot, &current_state, sizeof(snapshot));
-		current_state = snapshots[total_snapshots];
-		for (int current_entry = 0; current_entry < snapshots[total_snapshots].num_entries; current_entry++) {
-			entry* free_entry = get_entry(snapshots[total_snapshots].entries[current_entry].key);
+		current_state = snapshots[total_snapshots - 1];
+		for (int current_entry = 0; current_entry < snapshots[total_snapshots - 1].num_entries; current_entry++) {
+			entry* free_entry = get_entry(snapshots[total_snapshots - 1].entries[current_entry].key);
 			free(free_entry->backward);
 			free(free_entry->forward);
 			free(free_entry->values);
 		}
-		free(snapshots[total_snapshots].entries);
+		free(snapshots[total_snapshots - 1].entries);
 		current_state = original_snapshot;
 		total_snapshots--;
 		snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
