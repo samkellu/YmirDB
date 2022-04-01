@@ -106,7 +106,7 @@ void command_list_snapshots(snapshot *snapshots) {
 		printf("no snapshots\n\n");
 		return;
 	}
-	for (int snap_index = snapshot_counter - 1; snap_index >= 0; snap_index--) {
+	for (int snap_index = snapshot_counter; snap_index >= 0; snap_index--) {
 		snapshot* current_snapshot = get_snapshot(snapshots, snap_index);
 		if (current_snapshot != NULL) {
 			printf("%d\n", current_snapshot->id);
