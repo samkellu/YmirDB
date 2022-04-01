@@ -15,6 +15,7 @@
 #include "ymirdb.h"
 
 int total_snapshots = 0;
+int snapshot_counter = 0;
 snapshot current_state;
 
 entry* get_entry(char* key) {
@@ -27,10 +28,10 @@ entry* get_entry(char* key) {
 }
 
 snapshot* get_snapshot(snapshot* snapshots, int id) {
-	if (id > total_snapshots || id < 0) {
+	if (id > snapshot_counter || id < 0) {
 		return NULL;
 	}
-	for (int snap = 0; snap < total_snapshots; snap++) {
+	for (int snap = 0; snap < snapshot_counter; snap++) {
 		if (snapshots[snap].id == id) {
 			return &snapshots[snap];
 		}
@@ -45,17 +46,12 @@ void command_bye(snapshot* snapshots) {
 		free(current_state.entries[current_entry].values);
 	}
 	free(current_state.entries);
-	for (int current_snapshot = 0; current_snapshot < total_snapshots; current_snapshot++) {
+	for (int current_snapshot = 0; current_snapshot < snapshot_counter; current_snapshot++) {
 		current_state = snapshots[current_snapshot];
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
 			entry* free_entry = get_entry(snapshots[current_snapshot].entries[current_entry].key);
 			free(free_entry->backward);
 			free(free_entry->forward);
-			// for (int current_element = 0; current_element < snapshots[current_snapshot].entries[current_entry].length; current_element++) {
-			// 	if (snapshots[current_snapshot].entries[current_entry].values[current_element].type == ENTRY) {
-			// 		free(&snapshots[current_snapshot].entries[current_entry].values[current_element].entry);
-			// 	}
-			// }
 			free(free_entry->values);
 		}
 		free(snapshots[current_snapshot].entries);
@@ -110,8 +106,11 @@ void command_list_snapshots(snapshot *snapshots) {
 		printf("no snapshots\n\n");
 		return;
 	}
-	for (int snap_index = total_snapshots - 1; snap_index >= 0; snap_index--) {
-		printf("%d\n", snapshots[snap_index].id);
+	for (int snap_index = snapshot_counter - 1; snap_index >= 0; snap_index--) {
+		snapshot* current_snapshot = get_snapshot(snapshots, snap_index);
+		if (current_snapshot != NULL) {
+			printf("%d\n", current_snapshot->id);
+		}
 	}
 	printf("\n");
 }
@@ -581,16 +580,16 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &current_state.entries[entry_index].values[element_index], sizeof(element));
 			if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
-				// new_snapshot->entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
+				new_snapshot->entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
 				new_snapshot->entries[entry_index].values[element_index].entry = get_entry(current_state.entries[entry_index].values[element_index].entry->key);
 				memcpy(&new_snapshot->entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
 
 			}
 		}
 	}
-	current_state.id = new_snapshot->id + 1;
-	new_snapshot->id = current_state.id;
-	printf("saved as snapshot %d\n\n", ++total_snapshots);
+	new_snapshot->id = ++snapshot_counter;
+	++total_snapshots;
+	printf("saved as snapshot %d\n\n", new_snapshot->id);
 	return snapshots;
 }
 

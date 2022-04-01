@@ -82,8 +82,7 @@ b [2 c]
 c [3 d]
 d [-1 4 e]
 
-> 1
-
+> 
 > general
 
 > general
@@ -152,8 +151,7 @@ b [2 c]
 c [3 d]
 d [-1 4 e]
 
-> > > > > > 2
-1
+> > > > > > 1
 
 > > > general
 
@@ -213,12 +211,18 @@ d [-1 4 e]
 
 
 =================================================================
-==13241==ERROR: LeakSanitizer: detected memory leaks
+==13470==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 88 byte(s) in 11 object(s) allocated from:
+    #0 0x7f3b336adbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
+    #1 0x7f3b3402ad7a in command_snapshot /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:583
+    #2 0x7f3b3402dd52 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:950
+    #3 0x7f3b333c40b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
 
 Direct leak of 56 byte(s) in 7 object(s) allocated from:
-    #0 0x7ff45405dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7ff4549cc11f in command_checkout /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:538
-    #2 0x7ff4549cfca3 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:950
-    #3 0x7ff453d740b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #0 0x7f3b336adbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
+    #1 0x7f3b3402a122 in command_checkout /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:537
+    #2 0x7f3b3402dd24 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:948
+    #3 0x7f3b333c40b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
 
-SUMMARY: AddressSanitizer: 56 byte(s) leaked in 7 allocation(s).
+SUMMARY: AddressSanitizer: 144 byte(s) leaked in 18 allocation(s).
