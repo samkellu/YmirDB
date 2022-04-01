@@ -494,9 +494,7 @@ void command_drop(int id, snapshot* snapshots, int quiet) {
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		if (snapshots[snapshot_index].id == id) {
 			del_found = 1;
-			if (!quiet) {
-				total_snapshots--;
-			}
+			total_snapshots--;
 		}
 		if (del_found && snapshot_index != total_snapshots - 1) {
 			snapshots[snapshot_index] = snapshots[snapshot_index + 1];
