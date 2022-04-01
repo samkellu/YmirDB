@@ -16,29 +16,29 @@
 c [7]
 
 =================================================================
-==13315==ERROR: AddressSanitizer: heap-use-after-free on address 0x611000000180 at pc 0x7ff583606c65 bp 0x7fffc9765760 sp 0x7fffc9764f08
+==13731==ERROR: AddressSanitizer: heap-use-after-free on address 0x611000000180 at pc 0x7f31f2ef6c65 bp 0x7fffe2d21740 sp 0x7fffe2d20ee8
 READ of size 1 at 0x611000000180 thread T0
-    #0 0x7ff583606c64  (/lib/x86_64-linux-gnu/libasan.so.5+0xd6c64)
-    #1 0x7ff583fbd531 in get_entry /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:23
-    #2 0x7ff583fbe0f2 in command_del /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:141
-    #3 0x7ff583fbee2a in command_purge /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:228
-    #4 0x7ff583fc698b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:930
-    #5 0x7ff5833540b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
-    #6 0x7ff583fbd42d in _start (/mnt/c/Users/samke/desktop/uni/comp2017/ymirdb/ymirdb+0x342d)
+    #0 0x7f31f2ef6c64  (/lib/x86_64-linux-gnu/libasan.so.5+0xd6c64)
+    #1 0x7f31f389b531 in get_entry /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:23
+    #2 0x7f31f389c0f2 in command_del /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:141
+    #3 0x7f31f389ce2a in command_purge /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:228
+    #4 0x7f31f38a4ae7 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:934
+    #5 0x7f31f2c440b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #6 0x7f31f389b42d in _start (/mnt/c/Users/samke/desktop/uni/comp2017/ymirdb/ymirdb+0x342d)
 
 0x611000000180 is located 0 bytes inside of 216-byte region [0x611000000180,0x611000000258)
 freed by thread T0 here:
-    #0 0x7ff58363dffe in __interceptor_realloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dffe)
-    #1 0x7ff583fbe781 in command_del /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:183
-    #2 0x7ff583fbec89 in command_purge /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:223
-    #3 0x7ff583fc698b in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:930
-    #4 0x7ff5833540b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #0 0x7f31f2f2dffe in __interceptor_realloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dffe)
+    #1 0x7f31f389c781 in command_del /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:183
+    #2 0x7f31f389cc89 in command_purge /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:223
+    #3 0x7f31f38a4ae7 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:934
+    #4 0x7f31f2c440b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
 
 previously allocated by thread T0 here:
-    #0 0x7ff58363dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
-    #1 0x7ff583fc3636 in command_snapshot /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:570
-    #2 0x7ff583fc6d52 in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:950
-    #3 0x7ff5833540b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
+    #0 0x7f31f2f2dbc8 in malloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10dbc8)
+    #1 0x7f31f38a1792 in command_snapshot /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:574
+    #2 0x7f31f38a4eae in main /mnt/c/users/samke/desktop/uni/comp2017/ymirdb/ymirdb.c:954
+    #3 0x7f31f2c440b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x240b2)
 
 SUMMARY: AddressSanitizer: heap-use-after-free (/lib/x86_64-linux-gnu/libasan.so.5+0xd6c64) 
 Shadow bytes around the buggy address:
@@ -73,4 +73,4 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
   Left alloca redzone:     ca
   Right alloca redzone:    cb
   Shadow gap:              cc
-==13315==ABORTING
+==13731==ABORTING

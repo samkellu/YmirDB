@@ -555,7 +555,6 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 	for (int snapshot_index = id + 1; snapshot_index <= total_snapshots; snapshot_index++) {
 		command_drop(snapshot_index, snapshots, 1);
 	}
-	total_snapshots = id;
 	snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
 	printf("ok\n\n");
 	return snapshots;
