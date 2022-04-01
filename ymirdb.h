@@ -20,7 +20,7 @@ struct element {
   enum item_type type;
   union {
     int value;
-    struct entry *entry;
+    struct entry* entry;
   };
   char key[MAX_KEY];
 };
