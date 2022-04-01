@@ -439,9 +439,6 @@ void command_pick(char* key, int index) {
 	printf("%s\n\n", current_entry->values[index].entry->key);
 }
 
-//update forward and backward +++
-//validity +++
-//del quiet?? +++
 void command_pluck(char* key, int index) {
 	entry* current_entry = get_entry(key);
 	index--;
