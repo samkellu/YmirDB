@@ -486,7 +486,7 @@ void command_drop(int id, snapshot* snapshots, int quiet) {
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (id == 0 ||current_snapshot == NULL) {
 		if (!quiet) {
-		printf("no such snapshot\n\n");
+			printf("no such snapshot\n\n");
 		}
 		return;
 	}
@@ -494,9 +494,7 @@ void command_drop(int id, snapshot* snapshots, int quiet) {
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		if (snapshots[snapshot_index].id == id) {
 			del_found = 1;
-			if (!quiet) {
-				total_snapshots--;
-			}
+			total_snapshots--;
 		}
 		if (del_found && snapshot_index != total_snapshots - 1) {
 			snapshots[snapshot_index] = snapshots[snapshot_index + 1];
@@ -552,12 +550,9 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 		return snapshots;
 	}
 	command_checkout(id, snapshots, 1);
-	int deleted = 0;
 	for (int snapshot_index = id + 1; snapshot_index <= snapshot_counter; snapshot_index++) {
 		command_drop(snapshot_index, snapshots, 1);
-		deleted++;
 	}
-	total_snapshots -= (deleted - 1);
 	snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
 	printf("ok\n\n");
 	return snapshots;
