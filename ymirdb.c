@@ -532,7 +532,7 @@ void command_checkout(int id, snapshot* snapshots, int quiet) {
 			memcpy(&current_state.entries[entry_index].values[element_index], &current_snapshot->entries[entry_index].values[element_index], sizeof(element));
 			if (current_snapshot->entries[entry_index].values[element_index].type == ENTRY) {
 				current_state.entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
-				memcpy(current_state.entries[entry_index].values[element_index].entry, &current_snapshot->entries[entry_index].values[element_index].entry, sizeof(entry*));
+				memcpy(current_state.entries[entry_index].values[element_index].entry, current_snapshot->entries[entry_index].values[element_index].entry, sizeof(entry*));
 			}
 		}
 	}
