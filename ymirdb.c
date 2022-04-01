@@ -215,6 +215,7 @@ void command_purge(char* key, snapshot* snapshots) {
 		if (current_entry != NULL) {
 			if (current_entry->backward_size > 0) {
 				printf("not permitted\n\n");
+				current_state = original_snapshot;
 				return;
 			}
 		}
@@ -540,6 +541,7 @@ void command_checkout(int id, snapshot* snapshots, int quiet) {
 			}
 		}
 	}
+	current_state.id = -1;
 	if (!quiet) {
 		printf("ok\n\n");
 	}
@@ -587,6 +589,7 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		}
 	}
 	new_snapshot->id = ++snapshot_counter;
+	current_state.id = -1;
 	++total_snapshots;
 	printf("saved as snapshot %d\n\n", new_snapshot->id);
 	return snapshots;
@@ -882,7 +885,7 @@ int main(void) {
 	char *token,*input;
 
 	snapshot* snapshots = (snapshot*) malloc(0);
-	current_state.id = 0;
+	current_state.id = -1;
 	current_state.entries = NULL;
 	current_state.num_entries = 0;
 	while (true) {
