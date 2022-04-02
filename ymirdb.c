@@ -13,10 +13,12 @@
 
 #include "ymirdb.h"
 
+// global variables to store snapshot information easily, aswell as the current state of the program
 int total_snapshots = 0;
 int snapshot_counter = 0;
 snapshot current_state;
 
+//Returns the entry in the current state with the given key, or NULL if the key doesnt exist in the current state
 entry* get_entry(char* key) {
 	for (int entry_num = 0; entry_num < current_state.num_entries; entry_num++) {
 		if (strcmp(current_state.entries[entry_num].key, key) == 0) {
@@ -26,6 +28,7 @@ entry* get_entry(char* key) {
 	return NULL;
 }
 
+//Returns the snapshot with the given id, or NULL if the id doesnt exist in the array of snapshots
 snapshot* get_snapshot(snapshot* snapshots, int id) {
 	if (id > snapshot_counter || id < 0) {
 		return NULL;
@@ -38,6 +41,8 @@ snapshot* get_snapshot(snapshot* snapshots, int id) {
 	return NULL;
 }
 
+//Ends the program, freeing all memory from each snapshot, its entries, forward/backward refs, values etc. aswell
+//as the current state.
 void command_bye(snapshot* snapshots) {
 	for (int current_entry = 0; current_entry < current_state.num_entries; current_entry++) {
 		free(current_state.entries[current_entry].backward);
@@ -45,6 +50,7 @@ void command_bye(snapshot* snapshots) {
 		free(current_state.entries[current_entry].values);
 	}
 	free(current_state.entries);
+	//Traverses each snapshot and its entries, freeing each allocated memory space
 	for (int current_snapshot = 0; current_snapshot < total_snapshots; current_snapshot++) {
 		current_state = snapshots[current_snapshot];
 		for (int current_entry = 0; current_entry < snapshots[current_snapshot].num_entries; current_entry++) {
@@ -60,10 +66,12 @@ void command_bye(snapshot* snapshots) {
 	exit(0);
 }
 
+//Prints a list of all commands and their syntax
 void command_help() {
 	printf("%s\n", HELP);
 }
 
+//Lists all keys present in the current state in order of creation
 void command_list_keys() {
 	if (current_state.num_entries == 0) {
 		printf("no keys\n\n");
@@ -75,11 +83,13 @@ void command_list_keys() {
 	printf("\n");
 }
 
+//Lists all entries in the current state in order of creation
 void command_list_entries() {
 	if (current_state.num_entries == 0) {
 		printf("no entries\n\n");
 		return;
 	}
+	//Traverses all entries in the current state, then their values, printing each element's value/key as it goes
 	for (int current_entry = current_state.num_entries - 1; current_entry >= 0; current_entry--) {
 		entry* read_entry = get_entry(current_state.entries[current_entry].key);
 		printf("%s [", read_entry->key);
@@ -97,14 +107,15 @@ void command_list_entries() {
 		printf("]\n");
 	}
 	printf("\n");
-	fflush(stdout);
 }
 
+//Lists all valid snapshots that have been recorded
 void command_list_snapshots(snapshot *snapshots) {
 	if (total_snapshots == 0) {
 		printf("no snapshots\n\n");
 		return;
 	}
+	//Traverses the array of snapshots and prints their id
 	for (int snap_index = snapshot_counter; snap_index >= 0; snap_index--) {
 		snapshot* current_snapshot = get_snapshot(snapshots, snap_index);
 		if (current_snapshot != NULL) {
@@ -114,10 +125,13 @@ void command_list_snapshots(snapshot *snapshots) {
 	printf("\n");
 }
 
+//Prints the values stored in the entry with the given key in the current program state
 void command_get(char* key) {
+	//Gets the entry with the given key if it exists, if not returns
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
 		printf("[");
+		//Traverses all elements of the entry's values array, printing their value/key
 		for (int element_num = 0; element_num < current_entry->length; element_num++) {
 			element current_element = current_entry->values[element_num];
 			if (current_element.type == INTEGER) {
@@ -135,15 +149,20 @@ void command_get(char* key) {
 	printf("no such key\n\n");
 }
 
+//Deletes an entry with a given key from the current program state
 void command_del(char* key, int quiet) {
+	//Gets the entry with the given key if it exists, if not returns
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
+		//Checks if the deletion will invalidate any backward/forward references
 		if (current_entry->backward_size > 0) {
 			if (!quiet) {
 				printf("not permitted\n\n");
 			}
 			return;
 		}
+		//Traverses all entries in the current_state, then their backward references, deleting the entry from their
+		//backward array if it is present.
 		for  (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
 			entry* test_entry = get_entry(current_state.entries[entry_index].key);
 			int del_found = 0;
@@ -162,10 +181,12 @@ void command_del(char* key, int quiet) {
 			}
 		}
 		int del_found = 0;
+		//Traverses all entries in the current_state to find the entry to be deleted, then removes it
 		for  (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
 			entry* test_entry = get_entry(current_state.entries[entry_index].key);
 			if (strcmp(test_entry->key, key) == 0) {
 				del_found = 1;
+				//Frees all memory related to the given entry in the current state
 				free(current_entry->values);
 				free(current_entry->forward);
 				free(current_entry->backward);
@@ -176,8 +197,10 @@ void command_del(char* key, int quiet) {
 				}
 			}
 		}
+		//reallocates the array of entries to reflect the change in size
 		current_state.num_entries--;
 		current_state.entries = realloc(current_state.entries, current_state.num_entries * sizeof(entry));
+		//Reassigns pointers lost by the reallocation
 		for (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
 			entry* current_entry = get_entry(current_state.entries[entry_index].key);
 			for (int element_index = 0; element_index < current_entry->length; element_index++) {
@@ -196,8 +219,9 @@ void command_del(char* key, int quiet) {
 	}
 }
 
+//Deletes a given entry from all snapshots if valid
 void command_purge(char* key, snapshot* snapshots) {
-	snapshot original_snapshot;
+	//Gets the entry to be deleted and checks it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
 		if (current_entry->backward_size > 0) {
@@ -205,8 +229,12 @@ void command_purge(char* key, snapshot* snapshots) {
 			return;
 		}
 	}
+	//saves a copy of the current state for referencing later
+	snapshot original_snapshot;
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
+	//Checks if the deletion is valid in all snapshots
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
+		//changes the current state to perform the checks
 		current_state = snapshots[snapshot_index];
 		entry* current_entry = get_entry(key);
 		if (current_entry != NULL) {
@@ -217,15 +245,16 @@ void command_purge(char* key, snapshot* snapshots) {
 			}
 		}
 	}
+	//reverts the current state
 	current_state = original_snapshot;
+	//deletes the entry from the current state and saves the state again
 	command_del(key, 1);
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
+	//deletes the entry from all snapshots
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
+		//changes the current state to delete in the given snapshot
 		current_state = snapshots[snapshot_index];
-		current_state.entries = snapshots[snapshot_index].entries;
 		command_del(key, 1);
-		snapshots[snapshot_index].entries = current_state.entries;
-		snapshots[snapshot_index].num_entries = current_state.num_entries;
 	}
 	current_state = original_snapshot;
 	printf("ok\n\n");
