@@ -252,9 +252,11 @@ void command_purge(char* key, snapshot* snapshots) {
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
 	//deletes the entry from all snapshots
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
-		//changes the current state to delete in the given snapshot
 		current_state = snapshots[snapshot_index];
+		current_state.entries = snapshots[snapshot_index].entries;
 		command_del(key, 1);
+		snapshots[snapshot_index].entries = current_state.entries;
+		snapshots[snapshot_index].num_entries = current_state.num_entries;
 	}
 	current_state = original_snapshot;
 	printf("ok\n\n");
