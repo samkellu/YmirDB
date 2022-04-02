@@ -1056,66 +1056,68 @@ int main(void) {
 			array_length++;
 		}
 
-		if (strcasecmp("BYE", arg_array[0]) == 0) {
+		char *arg = arg_array[0];
+		if (strcasecmp("BYE", arg) == 0) {
 			free(arg_array);
 			command_bye(snapshots);
-		} else if (strcasecmp("HELP", arg_array[0]) == 0) {
+		} else if (strcasecmp("HELP", arg) == 0) {
 			command_help();
-		} else if (strcasecmp("LIST", arg_array[0]) == 0) {
-				if (strcasecmp("KEYS", arg_array[1]) == 0) {
+		} else if (strcasecmp("LIST", arg) == 0) {
+				char *arg = arg_array[1];
+				if (strcasecmp("KEYS", arg) == 0) {
 					command_list_keys();
-				} else if (strcasecmp("ENTRIES", arg_array[1]) == 0) {
+				} else if (strcasecmp("ENTRIES", arg) == 0) {
 					command_list_entries();
-				} else if (strcasecmp("SNAPSHOTS", arg_array[1]) == 0) {
+				} else if (strcasecmp("SNAPSHOTS", arg) == 0) {
 					command_list_snapshots(snapshots);
 				} else {
 					continue;
 				}
-		} else if (strcasecmp("GET", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("GET", arg) == 0 && array_length == 2) {
 			command_get(arg_array[1]);
-		} else if (strcasecmp("DEL", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("DEL", arg) == 0 && array_length == 2) {
 			command_del(arg_array[1], 0);
-		} else if (strcasecmp("PURGE", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("PURGE", arg) == 0 && array_length == 2) {
 			command_purge(arg_array[1], snapshots);
-		} else if (strcasecmp("SET", arg_array[0]) == 0 && array_length >= 1) {
+		} else if (strcasecmp("SET", arg) == 0 && array_length >= 1) {
 			command_set(arg_array, array_length);
-		} else if (strcasecmp("PUSH", arg_array[0]) == 0 && array_length >= 1) {
+		} else if (strcasecmp("PUSH", arg) == 0 && array_length >= 1) {
 			command_push(arg_array, array_length);
-		} else if (strcasecmp("APPEND", arg_array[0]) == 0 && array_length >= 1) {
+		} else if (strcasecmp("APPEND", arg) == 0 && array_length >= 1) {
 			command_append(arg_array, array_length);
-		} else if (strcasecmp("PICK", arg_array[0]) == 0 && array_length == 3) {
+		} else if (strcasecmp("PICK", arg) == 0 && array_length == 3) {
 			command_pick(arg_array[1],strtol(arg_array[2], NULL, 10));
-		} else if (strcasecmp("PLUCK", arg_array[0]) == 0 && array_length == 3) {
+		} else if (strcasecmp("PLUCK", arg) == 0 && array_length == 3) {
 			command_pluck(arg_array[1],strtol(arg_array[2], NULL, 10));
-		} else if (strcasecmp("POP", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("POP", arg) == 0 && array_length == 2) {
 			command_pop(arg_array[1]);
-		} else if (strcasecmp("DROP", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("DROP", arg) == 0 && array_length == 2) {
 			snapshots = command_drop(strtol(arg_array[1], NULL, 10), snapshots, 0);
-		} else if (strcasecmp("ROLLBACK", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("ROLLBACK", arg) == 0 && array_length == 2) {
 			snapshots = command_rollback(strtol(arg_array[1], NULL, 10), snapshots);
-		} else if (strcasecmp("CHECKOUT", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("CHECKOUT", arg) == 0 && array_length == 2) {
 			command_checkout(strtol(arg_array[1], NULL, 10), snapshots, 0);
-		} else if (strcasecmp("SNAPSHOT", arg_array[0]) == 0 && array_length == 1) {
+		} else if (strcasecmp("SNAPSHOT", arg) == 0 && array_length == 1) {
 			snapshots = command_snapshot(snapshots);
-		} else if (strcasecmp("MIN", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("MIN", arg) == 0 && array_length == 2) {
 			command_min(arg_array[1]);
-		} else if (strcasecmp("MAX", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("MAX", arg) == 0 && array_length == 2) {
 			command_max(arg_array[1]);
-		} else if (strcasecmp("SUM", arg_array[0]) == 0&& array_length == 2) {
+		} else if (strcasecmp("SUM", arg) == 0&& array_length == 2) {
 			command_sum(arg_array[1]);
-		} else if (strcasecmp("LEN", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("LEN", arg) == 0 && array_length == 2) {
 			command_len(arg_array[1]);
-		} else if (strcasecmp("REV", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("REV", arg) == 0 && array_length == 2) {
 			command_rev(arg_array[1]);
-		} else if (strcasecmp("UNIQ", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("UNIQ", arg) == 0 && array_length == 2) {
 			command_uniq(arg_array[1]);
-		} else if (strcasecmp("SORT", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("SORT", arg) == 0 && array_length == 2) {
 			command_sort(arg_array[1]);
-		} else if (strcasecmp("FORWARD", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("FORWARD", arg) == 0 && array_length == 2) {
 			command_forward(arg_array[1]);
-		} else if (strcasecmp("BACKWARD", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("BACKWARD", arg) == 0 && array_length == 2) {
 			command_backward(arg_array[1]);
-		} else if (strcasecmp("TYPE", arg_array[0]) == 0 && array_length == 2) {
+		} else if (strcasecmp("TYPE", arg) == 0 && array_length == 2) {
 			command_type(arg_array[1]);
 		}
 		free(arg_array);
