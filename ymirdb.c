@@ -991,7 +991,7 @@ int main(void) {
 			command_len(arg_array[1]);
 		} else if (strcasecmp("REV", arg) == 0 && array_length == 2) {
 			command_rev(arg_array[1]);
-		} else if (strcasecmp("UNIQ", arg) == 0) && array_length == 2 {
+		} else if (strcasecmp("UNIQ", arg) == 0 && array_length == 2) {
 			command_uniq(arg_array[1]);
 		} else if (strcasecmp("SORT", arg) == 0 && array_length == 2) {
 			command_sort(arg_array[1]);
