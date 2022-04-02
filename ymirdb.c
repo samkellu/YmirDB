@@ -841,6 +841,7 @@ void command_rev(char* key) {
 		printf("no such entry\n\n");
 		return;
 	}
+	//swaps elements at each end of the array until the whole array has reversed
 	element* new_val = malloc(sizeof(element)*current_entry->length);
 	for (int element = 0; element < current_entry->length; element++) {
 		new_val[element] = current_entry->values[current_entry->length - element - 1];
@@ -850,6 +851,7 @@ void command_rev(char* key) {
 	printf("ok\n\n");
 }
 
+//removes adjacend duplicate integer values from an entry's value array
 void command_uniq(char* key) {
 	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
@@ -857,12 +859,14 @@ void command_uniq(char* key) {
 		printf("no such key\n\n");
 		return;
 	}
+	//Checks that all elements in the given entry are integers
 	for (int check_entry = 0; check_entry < current_entry->length; check_entry++) {
 		if (current_entry->values[check_entry].type != INTEGER) {
 			printf("simple entry only\n\n");
 			return;
 		}
 	}
+	//removes duplicate adjacent entries
 	int counter = 0;
 	for (int element = 0; element < current_entry->length; element++) {
 		if (!(element != 0 && current_entry->values[element].value == current_entry->values[element - 1].value)) {
@@ -874,6 +878,7 @@ void command_uniq(char* key) {
 	printf("ok\n\n");
 }
 
+//sorts a given entry's value array (simple entry only)
 void command_sort(char* key) {
 	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
@@ -881,6 +886,7 @@ void command_sort(char* key) {
 		printf("no such key\n\n");
 		return;
 	}
+	//insertion sort on all values in the array
 	int element, cmp_value, prev_element;
 	for (element = 1; element < current_entry->length; element++)
 	{
@@ -896,19 +902,23 @@ void command_sort(char* key) {
 	printf("ok\n\n");
 }
 
+//Sorts all elements of a given array lexicographically
 void lex_sort(char** array) {
+	//gets the length of the array
 	int length = 0;
 	while (array[length++] != NULL) {}
 	length--;
-
+	//finds the minimum key in the current portion of the array, prints it, then deletes it from the array
 	while (length > 0) {
 		char* min_key = malloc(MAX_KEY);
 		memcpy(min_key, array[0], MAX_KEY);
+		//finds the minimum value in the current array
 		for (int key_index = 0; key_index < length; key_index++) {
 			if (array[key_index][0] < min_key[0]) {
 				memcpy(min_key, array[key_index], MAX_KEY);
 			}
 		}
+		//deletes the smallest key from the array and prints it
 		int del_found = 0;
 		for (int key_index = 0; key_index < length; key_index++) {
 			if (strcmp(array[key_index], min_key) == 0) {
@@ -932,10 +942,13 @@ void lex_sort(char** array) {
 	free(array);
 }
 
+//recursively adds the keys of forward entries of a given entry to an array
 char** recurse_forward(entry* current_entry, char** array, int length) {
+	//checks that the current entry has forward refs
 	if (current_entry->forward_size == 0) {
 		return array;
 	}
+	//checks that the current entry's key isnt already present in the array
 	for (int forw_index = current_entry->forward_size - 1; forw_index >= 0; forw_index--) {
 		int valid = 1;
 		for (int index = 0; index < length; index++) {
@@ -944,17 +957,20 @@ char** recurse_forward(entry* current_entry, char** array, int length) {
 			}
 		}
 		if (valid) {
+			//adds the current entry's key to the array, with an extra NULL key for sorting
 			array = (char**)realloc(array, sizeof(char*) * (length + 2));
 			array[length] = (char*)malloc(MAX_KEY);
 			memcpy(array[length++], current_entry->forward[forw_index].key, MAX_KEY);
 			array[length] = NULL;
 		}
+		//gets the key's corresponding entry and continues recursion
 		entry* for_entry = get_entry(current_entry->forward[forw_index].key);
 		array = recurse_forward(for_entry, array, length);
 	}
 	return array;
 }
 
+//Prints all the forward entries of a given entry
 void command_forward(char* key) {
 	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
@@ -962,20 +978,25 @@ void command_forward(char* key) {
 		printf("no such entry\n\n");
 		return;
 	}
+	//checks that the given entry has forward refereces
 	if (current_entry->forward_size == 0) {
 		printf("nil\n\n");
 		return;
 	}
+	//gets an array of all forward entries, sorts it lexicographically and prints it
 	char** array = (char**)malloc(0);
 	array = recurse_forward(current_entry, array, 0);
 	lex_sort(array);
 	printf("\n\n");
 }
 
+//recursively adds the keys of backward entries of an entry to an array
 char** recurse_backward(entry* current_entry, char** array, int length) {
+	//checks that the current entry has backward entries
 	if (current_entry->backward_size == 0) {
 		return array;
 	}
+	//checks that the entry is not already present in the array
 	for (int back_index = current_entry->backward_size - 1; back_index >= 0; back_index--) {
 		int valid = 1;
 		for (int index = 0; index < length; index++) {
@@ -984,11 +1005,13 @@ char** recurse_backward(entry* current_entry, char** array, int length) {
 			}
 		}
 		if (valid) {
+			//adds the current entry's key to the array, with an extra NULL key for sorting
 			array = (char**)realloc(array, sizeof(char*) * (length + 2));
 			array[length] = (char*)malloc(MAX_KEY);
 			memcpy(array[length++], current_entry->backward[back_index].key, MAX_KEY);
 			array[length] = NULL;
 		}
+		//gets the key's corresponding entry and continues recursion on it
 		entry* back_entry = get_entry(current_entry->backward[back_index].key);
 		array = recurse_backward(back_entry, array, length);
 	}
@@ -1002,10 +1025,12 @@ void command_backward(char* key) {
 		printf("no such entry\n\n");
 		return;
 	}
+	//checks if there are no backward refs
 	if (current_entry->backward_size == 0) {
 		printf("nil\n\n");
 		return;
 	}
+	//creates an array of the keys of all backward entries, then sorts them lexicographically and prints them
 	char** array = (char**)malloc(0);
 	array = recurse_backward(current_entry, array, 0);
 	lex_sort(array);
@@ -1055,7 +1080,7 @@ int main(void) {
 			arg_array[array_length] = token;
 			array_length++;
 		}
-
+		//handles the inputs and outputs of each function, given their specific input conditions are met
 		char *arg = arg_array[0];
 		if (strcasecmp("BYE", arg) == 0) {
 			free(arg_array);
