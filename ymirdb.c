@@ -252,23 +252,28 @@ void command_purge(char* key, snapshot* snapshots) {
 	memcpy(&original_snapshot, &current_state, sizeof(snapshot));
 	//deletes the entry from all snapshots
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
+		//changes the current state to delete the entry in the given snapshot
 		current_state = snapshots[snapshot_index];
 		current_state.entries = snapshots[snapshot_index].entries;
 		command_del(key, 1);
 		snapshots[snapshot_index].entries = current_state.entries;
 		snapshots[snapshot_index].num_entries = current_state.num_entries;
 	}
+	//reverts to the original state
 	current_state = original_snapshot;
 	printf("ok\n\n");
 }
 
+//sets a new or existing entry in the database, with a given set of values
 void command_set(char** array, int array_length) {
+	//ensures for all values of the new entry that the new entry is not a forward entry of itself
 	for (int check_arg = 2; check_arg < array_length; check_arg++) {
 		if (!(((char)array[check_arg][0] >= '0' && (char)array[check_arg][0] <= '9') || array[check_arg][0] == '-')) {
 			if (strcmp(array[check_arg], array[1]) == 0) {
 				printf("not permitted\n\n");
 				return;
 			}
+			//ensures that the given entry exists before it is added to the array
 			entry* test_entry = get_entry(array[check_arg]);
 			if (test_entry == NULL) {
 				printf("no such key\n\n");
@@ -276,8 +281,10 @@ void command_set(char** array, int array_length) {
 			}
 		}
 	}
+	//Checks if the entry is new or exists already
 	entry* current_entry = get_entry(array[1]);
 	if (current_entry == NULL) {
+		//if the entry is new, allocates space for its entries and reassigns all pointers lost in this operation
 		current_state.entries = realloc(current_state.entries, sizeof(entry) * (++current_state.num_entries));
 		for (int entry_index = 0; entry_index < current_state.num_entries - 1; entry_index++) {
 			for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
@@ -286,6 +293,7 @@ void command_set(char** array, int array_length) {
 				}
 			}
 		}
+		//initialises the entry's parameters
 		current_entry = &current_state.entries[current_state.num_entries-1];
 		current_entry->forward_size = 0;
 		current_entry->backward_size = 0;
@@ -293,7 +301,7 @@ void command_set(char** array, int array_length) {
 		current_entry->backward = NULL;
 		current_entry->values = NULL;
 	}
-
+	//deletes the entry from every other entry's backward ref array
 	for (int forward_index = 0; forward_index < current_entry->forward_size; forward_index++) {
 		entry* test_entry = get_entry(current_entry->forward[forward_index].key);
 		int del_found = 0;
@@ -312,9 +320,10 @@ void command_set(char** array, int array_length) {
 			test_entry->backward = realloc(test_entry->backward, sizeof(entry) * test_entry->backward_size);
 		}
 	}
-
+	//frees the entry's forward ref array to make way for new references
 	current_entry->forward_size = 0;
 	free(current_entry->forward);
+	//adds the entry to the forward ref array of each element in the new entry's backward ref array
 	for (int backward_index = 0; backward_index < current_entry->backward_size; backward_index++) {
 		entry* test_entry = get_entry(current_entry->backward[backward_index].key);
 		for (int forward_index = 0; forward_index < test_entry->forward_size; forward_index++) {
@@ -323,17 +332,21 @@ void command_set(char** array, int array_length) {
 			}
 		}
 	}
+	//initialises parameters and memory for value storage in the new entry
 	current_entry->values = realloc(current_entry->values, sizeof(element) * (array_length - 2));
 	current_entry->length = array_length-2;
 	current_entry->forward = NULL;
-
 	memcpy(current_entry->key, array[1], MAX_KEY);
+	//creates an element for each argument given and adds it to the new entry's value array
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[arg-2];
+		//Case where the given argument is an integer
 		if ((array[arg][0] >= '0' && array[arg][0] <= '9') || array[arg][0] == '-') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
+		//Case for when the given argument is an entry
 		} else {
+			//reallocates and reassigns ref arrays for the new entry, and the referenced entry
 			entry* test_entry = get_entry(array[arg]);
 			test_entry->backward_size++;
 			test_entry->backward = realloc(test_entry->backward, sizeof(entry)*test_entry->backward_size);
@@ -350,6 +363,7 @@ void command_set(char** array, int array_length) {
 	printf("ok\n\n");
 }
 
+//Checks given arguments to the push and append functions
 int value_checks(char** array, int array_length, entry* current_entry) {
 	if (current_entry == NULL) {
 		printf("no such key\n\n");
@@ -364,11 +378,13 @@ int value_checks(char** array, int array_length, entry* current_entry) {
 	return 0;
 }
 
+//Pushes the given array of elements to the start of the given entry
 void command_push(char** array, int array_length) {
 	for (int arg = 2; arg < array_length; arg++) {
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
 			continue;
 		}
+		//Checks that entries in the argument array exist
 		entry* current_entry = get_entry(array[arg]);
 		if (current_entry == NULL) {
 			printf("no such key\n\n");
@@ -376,24 +392,31 @@ void command_push(char** array, int array_length) {
 		}
 	}
 	entry* current_entry = get_entry(array[1]);
+	//Checks given arguments for validity
 	if (value_checks(array, array_length, current_entry)) {
 		return;
 	}
+	//reallocates the values array for the given entry
 	int old_len = current_entry->length;
 	current_entry->length += array_length - 2;
 	current_entry->values = realloc(current_entry->values, current_entry->length * sizeof(element));
+	//Moves all old elements to their new locations
 	for (int original_elem = 0; original_elem < old_len; original_elem++) {
 		current_entry->values[current_entry->length - 1 - original_elem] = current_entry->values[old_len - original_elem - 1];
 	}
 	if (old_len == 0) {
 		old_len = current_entry->length;
 	}
+	//Places the new elements at the correct locations
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[(array_length - 2) - (arg - 2) - 1];
+		//Case where the new element is an integer
 		if (array[arg][0] >= '0' && array[arg][0] <= '9') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
+		//Case where the new element is an entry
 		} else {
+			//reallocates and reassigns ref arrays for the given entry and the entry being referenced
 			entry* test_entry = get_entry(array[arg]);
 			test_entry->backward_size++;
 			test_entry->backward = realloc(test_entry->backward, sizeof(entry)*test_entry->backward_size);
@@ -410,31 +433,38 @@ void command_push(char** array, int array_length) {
 	printf("ok\n\n");
 }
 
+//Appends the given array of elements to the end of a given entry's values
 void command_append(char** array, int array_length) {
 	for (int arg = 2; arg < array_length; arg++) {
 		if ((array[arg][0] >= '0' && array[arg][0] <= '9') || array[arg][0] == '-') {
 			continue;
 		}
+		//Checks that entries in the argument array exist
 		entry* current_entry = get_entry(array[arg]);
 		if (current_entry == NULL) {
 			printf("no such key\n\n");
 			return;
 		}
 	}
+	//Checks given arguments for validity
 	entry* current_entry = get_entry(array[1]);
 	if (value_checks(array, array_length, current_entry)) {
 		return;
 	}
-
+	//reallocates the values array for the given entry
 	int old_len = current_entry->length;
 	current_entry->length += array_length - 2;
 	current_entry->values = realloc(current_entry->values, current_entry->length * sizeof(element));
+	//Places the new elements at the correct locations
 	for (int arg = 2; arg < array_length; arg++) {
 		element* new_element = &current_entry->values[old_len + (arg-2)];
+		//Case where the new element is an integer
 		if ((array[arg][0] >= '0' && array[arg][0] <= '9') || array[arg][0] == '-') {
 			new_element->type = INTEGER;
 			new_element->value = (int)strtol(array[arg], NULL, 10);
+		//Case where the new element is an entry
 		} else {
+			//reallocates and reassigns ref arrays for the given entry and the entry being referenced
 			entry* test_entry = get_entry(array[arg]);
 			test_entry->backward_size++;
 			test_entry->backward = realloc(test_entry->backward, sizeof(entry)*test_entry->backward_size);
@@ -451,17 +481,21 @@ void command_append(char** array, int array_length) {
 	printf("ok\n\n");
 }
 
+//Prints the value at a given index in a given entry's value array
 void command_pick(char* key, int index) {
 	index--;
+	//Gets the required entry by key and checks it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry == NULL) {
 		printf("no such key\n\n");
 		return;
 	}
+	//Checks if the given index is within bounds
 	if (index >= current_entry->length || index < 0) {
 		printf("index out of range\n\n");
 		return;
 	}
+	//returns the value
 	if (current_entry->values[index].type == INTEGER) {
 		printf("%d\n\n", current_entry->values[index].value);
 		return;
@@ -469,28 +503,33 @@ void command_pick(char* key, int index) {
 	printf("%s\n\n", current_entry->values[index].entry->key);
 }
 
+//Removes a value at a given index in a given entry's values array
 void command_pluck(char* key, int index) {
+	//gets the entry to be processed by key and checks it exists
 	entry* current_entry = get_entry(key);
 	index--;
 	if (current_entry == NULL) {
 		printf("no such key\n\n");
 		return;
 	}
+	//ensures the index is within correct bounds
 	if (current_entry->length <= index) {
 		printf("index out of range\n\n");
 		return;
 	}
-
+	//prints the value at the given index
 	if (current_entry->values[index].type == INTEGER) {
 		printf("%d\n\n", current_entry->values[index].value);
 	} else {
 		printf("%s\n\n", current_entry->values[index].entry->key);
 		int valid = 1;
+		//ensures that the entry both exists in the array, but also that only one instance of the entry is removed if multiple exist
 		for (int element_index = 0; element_index < current_entry->length; element_index++) {
 			if (strcmp(current_entry->values[element_index].key, current_entry->values[index].entry->key) == 0) {
 				valid--;
 			}
 		}
+		//Deletes the entry from the current entry's forward ref array
 		if (valid == 0) {
 			int del_found = 0;
 			for (int forward_entry = 0; forward_entry < current_entry->forward_size; forward_entry++) {
@@ -502,7 +541,7 @@ void command_pluck(char* key, int index) {
 				}
 			}
 			current_entry->forward = realloc(current_entry->forward, sizeof(entry*) * --current_entry->forward_size);
-
+			//Deletes the entry from the backward ref arrays of the entries it referenced
 			entry* test_entry = get_entry(current_entry->values[index].entry->key);
 			del_found = 0;
 			for (int backward_entry = 0; backward_entry < test_entry->backward_size; backward_entry++) {
@@ -516,6 +555,7 @@ void command_pluck(char* key, int index) {
 			test_entry->backward = realloc(test_entry->backward, sizeof(entry*) * --test_entry->backward_size);
 		}
 	}
+	//Deletes the element from the current entry's values array
 	for (int element_index = index; element_index < current_entry->length; element_index++) {
 		if (element_index != current_entry->length - 1) {
 			current_entry->values[element_index] = current_entry->values[element_index + 1];
@@ -524,7 +564,9 @@ void command_pluck(char* key, int index) {
 	current_entry->values = realloc(current_entry->values, sizeof(element) * --current_entry->length);
 }
 
+//removes the first element from a given entry
 void command_pop(char* key) {
+	//checks that the entry exists
 	entry* current_entry = get_entry(key);
 	if (current_entry == NULL) {
 		printf("no such key\n\n");
@@ -534,10 +576,13 @@ void command_pop(char* key) {
 		printf("nil\n\n");
 		return;
 	}
+	//plucks the first element of the entry
 	command_pluck(key, 1);
 }
 
+//Deletes a snapshot from the current array of snapshots
 snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
+	//gets the given snapshot by id and checks that it exists
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (id == 0 ||current_snapshot == NULL) {
 		if (!quiet) {
@@ -545,6 +590,7 @@ snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 		}
 		return snapshots;
 	}
+	//deletes the snapshot from the array of snapshots
 	int del_found = 0;
 	for (int snapshot_index = 0; snapshot_index < total_snapshots; snapshot_index++) {
 		if (snapshots[snapshot_index].id == id) {
@@ -555,9 +601,11 @@ snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 		}
 	}
 	if (del_found) {
+		//saves the current state for later referencing
 		snapshot original_snapshot;
 		memcpy(&original_snapshot, &current_state, sizeof(snapshot));
 		current_state = snapshots[total_snapshots - 1];
+		//frees all memory relating to the given snapshot
 		for (int current_entry = 0; current_entry < snapshots[total_snapshots - 1].num_entries; current_entry++) {
 			entry* free_entry = get_entry(snapshots[total_snapshots - 1].entries[current_entry].key);
 			free(free_entry->backward);
@@ -565,6 +613,7 @@ snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 			free(free_entry->values);
 		}
 		free(snapshots[total_snapshots - 1].entries);
+		//reverts to the current state
 		current_state = original_snapshot;
 		total_snapshots--;
 		snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
@@ -575,18 +624,22 @@ snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 	return snapshots;
 }
 
+//Replaces the current state with a copy of a given snapshot
 void command_checkout(int id, snapshot* snapshots, int quiet) {
+	//gets the required snapshot and checks that it exists
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (!quiet && (id == 0 || current_snapshot == NULL)) {
 		printf("no such snapshot\n\n");
 		return;
 	}
+	//frees all memory related to the current state
 	for (int entry_index = 0; entry_index < current_state.num_entries; entry_index++) {
 		free(current_state.entries[entry_index].forward);
 		free(current_state.entries[entry_index].backward);
 		free(current_state.entries[entry_index].values);
 	}
 	free(current_state.entries);
+	//Copies all allocated memory related to the given snapshot to the new current state
 	memcpy(&current_state, current_snapshot, sizeof(snapshot));
 	current_state.num_entries = current_snapshot->num_entries;
 	current_state.entries = (entry*)malloc(sizeof(entry) * current_snapshot->num_entries);
@@ -612,13 +665,17 @@ void command_checkout(int id, snapshot* snapshots, int quiet) {
 	}
 }
 
+//Reverts the current state to a previous snapshot, deleting all newer snapshots
 snapshot* command_rollback(int id, snapshot* snapshots) {
+	//gets the required snapshot and ensures it exists
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
 	if (id == 0 || current_snapshot == NULL) {
 		printf("no such snapshot\n\n");
 		return snapshots;
 	}
+	//Sets the current state to be a copy of the target snapshot
 	command_checkout(id, snapshots, 1);
+	//drops all newer snapshots
 	for (int snapshot_index = id + 1; snapshot_index <= snapshot_counter; snapshot_index++) {
 		snapshots = command_drop(snapshot_index, snapshots, 1);
 	}
@@ -626,10 +683,12 @@ snapshot* command_rollback(int id, snapshot* snapshots) {
 	return snapshots;
 }
 
-
+//Creates a copy of the current state and stores it in memory to be referenced later
 snapshot* command_snapshot(snapshot* snapshots) {
+	//reallocates the current array of snapshots and creates a new snapshot
 	snapshots = realloc(snapshots, sizeof(snapshot)*(total_snapshots + 1));
 	snapshot* new_snapshot = &snapshots[total_snapshots];
+	//copies all memory related to the current state to the new snapshot
 	memcpy(new_snapshot, &current_state, sizeof(snapshot));
 	new_snapshot->num_entries = current_state.num_entries;
 	new_snapshot->entries = (entry*)malloc(sizeof(entry) * current_state.num_entries);
@@ -645,18 +704,19 @@ snapshot* command_snapshot(snapshot* snapshots) {
 		for (int element_index = 0; element_index < current_state.entries[entry_index].length; element_index++) {
 			memcpy(&new_snapshot->entries[entry_index].values[element_index], &current_state.entries[entry_index].values[element_index], sizeof(element));
 			if (current_state.entries[entry_index].values[element_index].type == ENTRY) {
-				// new_snapshot->entries[entry_index].values[element_index].entry = malloc(sizeof(entry*));
 				new_snapshot->entries[entry_index].values[element_index].entry = get_entry(current_state.entries[entry_index].values[element_index].entry->key);
 				memcpy(&new_snapshot->entries[entry_index].values[element_index].key, &current_state.entries[entry_index].values[element_index].key, MAX_KEY);
 			}
 		}
 	}
+	//sets the new id of the snapshot and updates global variables relating to snapshots
 	new_snapshot->id = ++snapshot_counter;
 	++total_snapshots;
 	printf("saved as snapshot %d\n\n", new_snapshot->id);
 	return snapshots;
 }
 
+//Recursively finds the minimum value in an entry and all of its forward refernces
 int recursive_min(entry* current_entry, int min) {
 	for (int element = 0; element < current_entry->length; element++) {
 		if (current_entry->values[element].type == INTEGER) {
@@ -670,10 +730,14 @@ int recursive_min(entry* current_entry, int min) {
 	return min;
 }
 
+//Prints the minimum value in an entry and its forward references
 void command_min(char* key) {
+	//gets the required entry and checks it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
+		//finds the minimum value
 		int min = recursive_min(current_entry, INT_MAX);
+		//checks if the returned value has changed (indicating that at least one integer has been found)
 		if (min == INT_MAX) {
 			printf("no integer values\n\n");
 		} else {
@@ -684,6 +748,7 @@ void command_min(char* key) {
 	printf("no such entry\n\n");
 }
 
+//recursivly finds the maximum element in a given entry, and all of its forward references
 int recursive_max(entry* current_entry, int max) {
 	for (int element = 0; element < current_entry->length; element++) {
 		if (current_entry->values[element].type == INTEGER) {
@@ -697,10 +762,14 @@ int recursive_max(entry* current_entry, int max) {
 	return max;
 }
 
+//Prints the maximum value contained in a given entry and its forward references
 void command_max(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
+		//finds the maximum value
 		int max = recursive_max(current_entry, INT_MIN);
+		//checks if the returned value has changed (indicating that at least one integer has been found)
 		if (max == INT_MIN) {
 			printf("no integer values\n\n");
 		} else {
@@ -711,6 +780,7 @@ void command_max(char* key) {
 	printf("No such entry\n\n");
 }
 
+//recursively calculates the sum of an entry (and its forward references) values
 int recursive_sum(entry* current_entry, int sum) {
 	for (int element = 0; element < current_entry->length; element++) {
 		if (current_entry->values[element].type == INTEGER) {
@@ -723,15 +793,19 @@ int recursive_sum(entry* current_entry, int sum) {
 }
 
 void command_sum(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
+		//prints the sum of all values
 		printf("%d\n\n", recursive_sum(current_entry, 0));
 		return;
 	}
 	printf("No such entry\n\n");
 }
 
+//Recursively finds the total length of a given entry and its forward references
 int recursive_len(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	int size = 0;
 	if (current_entry != NULL) {
@@ -747,16 +821,21 @@ int recursive_len(char* key) {
 	return size;
 }
 
+//prints the total length of an entry and its forward references
 void command_len(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry != NULL) {
+		//prints the total length
 		printf("%d\n\n", recursive_len(key));
 		return;
 	}
 	printf("No such entry\n\n");
 }
 
+//reverses a given array
 void command_rev(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry == NULL) {
 		printf("no such entry\n\n");
@@ -772,6 +851,7 @@ void command_rev(char* key) {
 }
 
 void command_uniq(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry == NULL) {
 		printf("no such key\n\n");
@@ -795,6 +875,7 @@ void command_uniq(char* key) {
 }
 
 void command_sort(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry == NULL) {
 		printf("no such key\n\n");
@@ -875,6 +956,7 @@ char** recurse_forward(entry* current_entry, char** array, int length) {
 }
 
 void command_forward(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry == NULL) {
 		printf("no such entry\n\n");
@@ -914,6 +996,7 @@ char** recurse_backward(entry* current_entry, char** array, int length) {
 }
 
 void command_backward(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
 	if (current_entry == NULL) {
 		printf("no such entry\n\n");
@@ -929,9 +1012,11 @@ void command_backward(char* key) {
 	printf("\n\n");
 }
 
-
+//Prints the type of a given entry
 void command_type(char* key) {
+	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
+	//checks all values, prints general if there are any entries, simple if not
 	for (int current_element = 0; current_element < current_entry->length; current_element++) {
 		if (current_entry->values[current_element].type == ENTRY) {
 			printf("general\n\n");
@@ -942,16 +1027,17 @@ void command_type(char* key) {
 }
 
 int main(void) {
-
+	//initialising input variables
 	char line[MAX_LINE];
 	char *token,*input;
-
+	//initialises the current state and snapshots array
 	snapshot* snapshots = (snapshot*) malloc(0);
 	current_state.entries = NULL;
 	current_state.num_entries = 0;
+	//main loop
 	while (true) {
 		printf("> ");
-
+		//exits if fgets returns NULL
 		if (NULL == fgets(line, MAX_LINE, stdin)) {
 			printf("\n");
 			command_bye(snapshots);
@@ -959,8 +1045,10 @@ int main(void) {
 		}
 
 		input = line;
+		//allocates an array to store the entered arguments
 		char **arg_array = (char**) malloc(sizeof(char**));
 		int array_length = 0;
+		//separates and parses all values given as arguments, adds them to the array of arguments
 		while ((token = strsep(&input, " ")) != NULL) {
 			token = strsep(&token, "\n");
 			arg_array = (char**)realloc(arg_array, (array_length+1)*sizeof(char**));
@@ -968,68 +1056,66 @@ int main(void) {
 			array_length++;
 		}
 
-		char *arg = arg_array[0];
-		if (strcasecmp("BYE", arg) == 0) {
+		if (strcasecmp("BYE", arg_array[0]) == 0) {
 			free(arg_array);
 			command_bye(snapshots);
-		} else if (strcasecmp("HELP", arg) == 0) {
+		} else if (strcasecmp("HELP", arg_array[0]) == 0) {
 			command_help();
-		} else if (strcasecmp("LIST", arg) == 0) {
-				char *arg = arg_array[1];
-				if (strcasecmp("KEYS", arg) == 0) {
+		} else if (strcasecmp("LIST", arg_array[0]) == 0) {
+				if (strcasecmp("KEYS", arg_array[1]) == 0) {
 					command_list_keys();
-				} else if (strcasecmp("ENTRIES", arg) == 0) {
+				} else if (strcasecmp("ENTRIES", arg_array[1]) == 0) {
 					command_list_entries();
-				} else if (strcasecmp("SNAPSHOTS", arg) == 0) {
+				} else if (strcasecmp("SNAPSHOTS", arg_array[1]) == 0) {
 					command_list_snapshots(snapshots);
 				} else {
 					continue;
 				}
-		} else if (strcasecmp("GET", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("GET", arg_array[0]) == 0 && array_length == 2) {
 			command_get(arg_array[1]);
-		} else if (strcasecmp("DEL", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("DEL", arg_array[0]) == 0 && array_length == 2) {
 			command_del(arg_array[1], 0);
-		} else if (strcasecmp("PURGE", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("PURGE", arg_array[0]) == 0 && array_length == 2) {
 			command_purge(arg_array[1], snapshots);
-		} else if (strcasecmp("SET", arg) == 0 && array_length >= 1) {
+		} else if (strcasecmp("SET", arg_array[0]) == 0 && array_length >= 1) {
 			command_set(arg_array, array_length);
-		} else if (strcasecmp("PUSH", arg) == 0 && array_length >= 1) {
+		} else if (strcasecmp("PUSH", arg_array[0]) == 0 && array_length >= 1) {
 			command_push(arg_array, array_length);
-		} else if (strcasecmp("APPEND", arg) == 0 && array_length >= 1) {
+		} else if (strcasecmp("APPEND", arg_array[0]) == 0 && array_length >= 1) {
 			command_append(arg_array, array_length);
-		} else if (strcasecmp("PICK", arg) == 0 && array_length == 3) {
+		} else if (strcasecmp("PICK", arg_array[0]) == 0 && array_length == 3) {
 			command_pick(arg_array[1],strtol(arg_array[2], NULL, 10));
-		} else if (strcasecmp("PLUCK", arg) == 0 && array_length == 3) {
+		} else if (strcasecmp("PLUCK", arg_array[0]) == 0 && array_length == 3) {
 			command_pluck(arg_array[1],strtol(arg_array[2], NULL, 10));
-		} else if (strcasecmp("POP", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("POP", arg_array[0]) == 0 && array_length == 2) {
 			command_pop(arg_array[1]);
-		} else if (strcasecmp("DROP", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("DROP", arg_array[0]) == 0 && array_length == 2) {
 			snapshots = command_drop(strtol(arg_array[1], NULL, 10), snapshots, 0);
-		} else if (strcasecmp("ROLLBACK", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("ROLLBACK", arg_array[0]) == 0 && array_length == 2) {
 			snapshots = command_rollback(strtol(arg_array[1], NULL, 10), snapshots);
-		} else if (strcasecmp("CHECKOUT", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("CHECKOUT", arg_array[0]) == 0 && array_length == 2) {
 			command_checkout(strtol(arg_array[1], NULL, 10), snapshots, 0);
-		} else if (strcasecmp("SNAPSHOT", arg) == 0 && array_length == 1) {
+		} else if (strcasecmp("SNAPSHOT", arg_array[0]) == 0 && array_length == 1) {
 			snapshots = command_snapshot(snapshots);
-		} else if (strcasecmp("MIN", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("MIN", arg_array[0]) == 0 && array_length == 2) {
 			command_min(arg_array[1]);
-		} else if (strcasecmp("MAX", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("MAX", arg_array[0]) == 0 && array_length == 2) {
 			command_max(arg_array[1]);
-		} else if (strcasecmp("SUM", arg) == 0&& array_length == 2) {
+		} else if (strcasecmp("SUM", arg_array[0]) == 0&& array_length == 2) {
 			command_sum(arg_array[1]);
-		} else if (strcasecmp("LEN", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("LEN", arg_array[0]) == 0 && array_length == 2) {
 			command_len(arg_array[1]);
-		} else if (strcasecmp("REV", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("REV", arg_array[0]) == 0 && array_length == 2) {
 			command_rev(arg_array[1]);
-		} else if (strcasecmp("UNIQ", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("UNIQ", arg_array[0]) == 0 && array_length == 2) {
 			command_uniq(arg_array[1]);
-		} else if (strcasecmp("SORT", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("SORT", arg_array[0]) == 0 && array_length == 2) {
 			command_sort(arg_array[1]);
-		} else if (strcasecmp("FORWARD", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("FORWARD", arg_array[0]) == 0 && array_length == 2) {
 			command_forward(arg_array[1]);
-		} else if (strcasecmp("BACKWARD", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("BACKWARD", arg_array[0]) == 0 && array_length == 2) {
 			command_backward(arg_array[1]);
-		} else if (strcasecmp("TYPE", arg) == 0 && array_length == 2) {
+		} else if (strcasecmp("TYPE", arg_array[0]) == 0 && array_length == 2) {
 			command_type(arg_array[1]);
 		}
 		free(arg_array);
