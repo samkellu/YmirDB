@@ -1,5 +1,6 @@
 set a 123
 set b a
+set d a
 set c b
 forward c
 bye

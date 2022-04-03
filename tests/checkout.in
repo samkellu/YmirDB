@@ -1,0 +1,22 @@
+set a 123 33
+set b a 123
+forward a
+forward b
+backward a
+backward b
+snapshot
+set c 22 33
+del b
+snapshot
+list entries
+del a
+list entries
+checkout 0
+checkout 10
+checkout 1
+list entries
+forward a
+forward b
+backward a
+backward b
+bye

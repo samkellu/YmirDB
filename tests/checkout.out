@@ -1,0 +1,45 @@
+> ok
+
+> ok
+
+> nil
+
+> a
+
+> b
+
+> nil
+
+> saved as snapshot 1
+
+> ok
+
+> ok
+
+> saved as snapshot 2
+
+> c [22 33]
+a [123 33]
+
+> ok
+
+> c [22 33]
+
+> no such snapshot
+
+> no such snapshot
+
+> ok
+
+> b [a 123]
+a [123 33]
+
+> nil
+
+> a
+
+> b
+
+> nil
+
+> bye

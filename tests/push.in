@@ -5,4 +5,6 @@ push b
 set c 123 334 b
 push a 44 22 c
 get a
+get b
+get c
 bye

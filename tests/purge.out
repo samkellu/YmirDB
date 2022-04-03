@@ -1,0 +1,47 @@
+> ok
+
+> a [123 22]
+
+> saved as snapshot 1
+
+> ok
+
+> a [22 11 33 22]
+
+> saved as snapshot 2
+
+> ok
+
+> b [a 123 3]
+a [22 11 33 22]
+
+> saved as snapshot 3
+
+> ok
+
+> b [a 123 3]
+a [44 55]
+
+> saved as snapshot 4
+
+> not permitted
+
+> ok
+
+> a [123 22]
+
+> ok
+
+> a [22 11 33 22]
+
+> ok
+
+> b [a 123 3]
+a [22 11 33 22]
+
+> ok
+
+> b [a 123 3]
+a [44 55]
+
+> bye

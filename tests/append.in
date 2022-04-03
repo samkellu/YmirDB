@@ -1,7 +1,8 @@
+append a 1 2
 set a 123 33 554
 set b 11 a 46 22
 get a
-push b
+push a b
 set c 123 334 b
 append a 44 22 c
 get a

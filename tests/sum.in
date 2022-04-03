@@ -1,6 +1,8 @@
 sum a
 set a 1 2 3 4 5 6 22 34
 set b 123 334 a 44
-set c b asd 12 55 7y
+set c b a 12 55 7
 sum c
+sum b
+sum a
 bye

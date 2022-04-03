@@ -3,6 +3,7 @@ set b 12 a 55
 set c 800 12 33
 list entries
 del c
+del d
 list entries
 list keys
 get c

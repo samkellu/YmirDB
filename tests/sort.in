@@ -1,0 +1,9 @@
+set a 123 33 22 34 55656 67 77 12 234 345 75676 234 65647 8689 22 34 55
+sort a
+set b 1 1 1 1 1 123 33 22
+get a
+get b
+sort b
+list entries
+sort d
+bye

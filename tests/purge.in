@@ -1,0 +1,22 @@
+set a 123 22
+list entries
+snapshot
+set a 22 11 33 22
+list entries
+snapshot
+set b a 123 3
+list entries
+snapshot
+set a 44 55
+list entries
+snapshot
+purge a
+checkout 1
+list entries
+checkout 2
+list entries
+checkout 3
+list entries
+checkout 4
+list entries
+bye

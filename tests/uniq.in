@@ -1,0 +1,6 @@
+set a 1 1 1 2 2 3 3 3 3 3 4 4
+set b 1 1 a a a 22 22 22
+uniq a
+uniq b
+list entries
+bye

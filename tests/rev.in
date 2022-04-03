@@ -1,0 +1,8 @@
+set a 1 2 3 4 5 6 7 8 9
+get a
+rev a
+rev b
+set b 123 22 a 44
+reb b
+list entries
+bye

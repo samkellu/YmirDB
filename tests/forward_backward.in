@@ -1,0 +1,22 @@
+set a
+set b a
+set c b a
+set d c b a
+set e d c b a
+set f e d c b a
+set g f e d c b a
+backward a
+backward b
+backward c
+backward d
+backward e
+backward f
+forward g
+forward a
+forward b
+forward c
+forward d
+forward e
+forward f
+forward g
+bye

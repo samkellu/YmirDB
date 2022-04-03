@@ -584,7 +584,7 @@ void command_pop(char* key) {
 snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 	//gets the given snapshot by id and checks that it exists
 	snapshot* current_snapshot = get_snapshot(snapshots, id);
-	if (id == 0 ||current_snapshot == NULL) {
+	if (id == 0 || current_snapshot == NULL) {
 		if (!quiet) {
 			printf("no such snapshot\n\n");
 		}
@@ -604,18 +604,17 @@ snapshot* command_drop(int id, snapshot* snapshots, int quiet) {
 		//saves the current state for later referencing
 		snapshot original_snapshot;
 		memcpy(&original_snapshot, &current_state, sizeof(snapshot));
-		current_state = snapshots[total_snapshots - 1];
+		current_state = snapshots[--total_snapshots];
 		//frees all memory relating to the given snapshot
-		for (int current_entry = 0; current_entry < snapshots[total_snapshots - 1].num_entries; current_entry++) {
-			entry* free_entry = get_entry(snapshots[total_snapshots - 1].entries[current_entry].key);
+		for (int current_entry = 0; current_entry < snapshots[total_snapshots].num_entries; current_entry++) {
+			entry* free_entry = get_entry(snapshots[total_snapshots].entries[current_entry].key);
 			free(free_entry->backward);
 			free(free_entry->forward);
 			free(free_entry->values);
 		}
-		free(snapshots[total_snapshots - 1].entries);
+		free(snapshots[total_snapshots].entries);
 		//reverts to the current state
 		current_state = original_snapshot;
-		total_snapshots--;
 		snapshots = realloc(snapshots, sizeof(snapshot) * total_snapshots);
 	}
 	if (!quiet) {
@@ -777,7 +776,7 @@ void command_max(char* key) {
 		}
 		return;
 	}
-	printf("No such entry\n\n");
+	printf("no such entry\n\n");
 }
 
 //recursively calculates the sum of an entry (and its forward references) values
@@ -800,7 +799,7 @@ void command_sum(char* key) {
 		printf("%d\n\n", recursive_sum(current_entry, 0));
 		return;
 	}
-	printf("No such entry\n\n");
+	printf("no such entry\n\n");
 }
 
 //Recursively finds the total length of a given entry and its forward references
@@ -830,7 +829,7 @@ void command_len(char* key) {
 		printf("%d\n\n", recursive_len(key));
 		return;
 	}
-	printf("No such entry\n\n");
+	printf("no such entry\n\n");
 }
 
 //reverses a given array
@@ -1041,6 +1040,10 @@ void command_backward(char* key) {
 void command_type(char* key) {
 	//gets the required entry and checks if it exists
 	entry* current_entry = get_entry(key);
+	if (current_entry == NULL) {
+		printf("no such key\n\n");
+		return;
+	}
 	//checks all values, prints general if there are any entries, simple if not
 	for (int current_element = 0; current_element < current_entry->length; current_element++) {
 		if (current_entry->values[current_element].type == ENTRY) {

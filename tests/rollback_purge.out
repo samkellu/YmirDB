@@ -21,8 +21,17 @@ a [1 2]
 
 > ok
 
+> c [5 6]
+a [1 2]
+
 > ok
 
 > 1
+
+> no such key
+
+> ok
+
+> saved as snapshot 3
 
 > bye

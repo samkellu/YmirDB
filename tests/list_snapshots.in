@@ -1,0 +1,11 @@
+set a 123
+snapshot
+snapshot
+snapshot
+list snapshots
+checkout 1
+snapshot
+list snapshots
+drop 4
+list snapshots
+bye

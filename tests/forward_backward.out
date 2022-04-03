@@ -1,0 +1,43 @@
+> ok
+
+> ok
+
+> ok
+
+> ok
+
+> ok
+
+> ok
+
+> ok
+
+> b, c, d, e, f, g
+
+> c, d, e, f, g
+
+> d, e, f, g
+
+> e, f, g
+
+> f, g
+
+> g
+
+> a, b, c, d, e, f
+
+> nil
+
+> a
+
+> a, b
+
+> a, b, c
+
+> a, b, c, d
+
+> a, b, c, d, e
+
+> a, b, c, d, e, f
+
+> bye

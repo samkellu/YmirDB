@@ -4,6 +4,7 @@ pluck a
 set a 123 22
 pluck a 5
 get a
+pluck a 1
 set b a 22 45 56
 pluck b 1
 get b

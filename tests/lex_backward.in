@@ -1,0 +1,8 @@
+set rat 123
+set bat rat
+set dog rat
+set c bat
+backward rat
+backward bat
+backward dog
+bye

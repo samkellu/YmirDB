@@ -128,44 +128,44 @@ d [-1 4 e]
 
 > ok
 
-> > ok
+> ok
 
-> > [4 -1]
+> [4 -1]
 
-> > ok
+> ok
 
-> > [-1 4]
+> [-1 4]
 
-> > ok
+> ok
 
-> > ok
+> ok
 
-> > e
+> e
 a
 b
 c
 d
 
-> > > > > > e [0]
+> e [0]
 a [1 b]
 b [2 c]
 c [3 d]
 d [-1 4 e]
 
-> > > > > > 2
+> 2
 1
 
-> > > general
+> general
 
-> > general
+> general
 
-> > general
+> general
 
-> > general
+> general
 
-> > simple
+> simple
 
-> > 6
+> 6
 
 > 5
 
@@ -211,5 +211,4 @@ b [2 c]
 c [3 d]
 d [-1 4 e]
 
-> 
-bye
+> bye

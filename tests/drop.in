@@ -1,0 +1,15 @@
+set a 123
+snapshot
+set b 22 343
+snapshot
+drop 5
+drop 0
+set c 22 a b 44
+snapshot
+list snapshots
+drop 3
+list snapshots
+list entries
+checkout 1
+list entries
+bye
